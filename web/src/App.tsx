@@ -30,9 +30,11 @@ const App: React.FC = () => {
   };
 
   return (
+    <div className="min-h-screen bg-[#E5EDF8] p-6">
     <Layout onNavigate={setCurrentPage}>
       {renderCurrentPage()}
     </Layout>
+    </div>
   );
 };
 

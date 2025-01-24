@@ -32,3 +32,5 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
     </div>
   );
 };
+
+export default Layout;
