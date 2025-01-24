@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Module } from '../types';
 
 interface LandingPageProps {
@@ -15,19 +15,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   ];
 
   return (
-    <Card className="w-full max-w-2xl bg-white rounded-lg shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium">Welcome to the Pacemaker Simulator!</CardTitle>
-        <p className="text-sm text-gray-600">External Pacemaker Simulation Platform</p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="p-2 bg-gray-50 hover:bg-gray-100 cursor-pointer rounded">
+    <Card className="w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">Welcome to the Pacemaker Simulator!</h1>
+        <p className="text-gray-600">External Pacemaker Simulation Platform</p>
+      </div>
+      <CardContent className="space-y-4 p-0">
+        <div className="p-4 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
           <p className="font-medium">Tutorial: Get to know how to play!</p>
         </div>
         {modules.map((module) => (
           <div
             key={module.id}
-            className="p-2 bg-gray-50 hover:bg-gray-100 cursor-pointer rounded"
+            className="p-4 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors"
             onClick={() => onModuleSelect(module.id)}
           >
             <p className="font-medium">Module {module.id}: {module.title}</p>
