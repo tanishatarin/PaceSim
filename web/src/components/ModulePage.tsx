@@ -51,7 +51,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
           {/* EKG Visualization Area */}
           <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64 flex items-center justify-center">
-            <ECGVisualizer />
+            <ECGVisualizer />  {/* this is the new code, can comment it out bc sizing is wrong */}
             {/* <Activity className="w-full h-32 text-gray-400" /> */}
           </div>
         </div>
