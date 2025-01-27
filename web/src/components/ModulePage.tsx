@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Lightbulb, Activity } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import ECGVisualizer from "@/components/ECGVisualizer";
 
 interface ModulePageProps {
   moduleId: number;
@@ -50,7 +51,8 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
           {/* EKG Visualization Area */}
           <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64 flex items-center justify-center">
-            <Activity className="w-full h-32 text-gray-400" />
+            <ECGVisualizer />
+            {/* <Activity className="w-full h-32 text-gray-400" /> */}
           </div>
         </div>
 
