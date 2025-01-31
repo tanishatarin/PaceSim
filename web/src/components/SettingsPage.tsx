@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Bluetooth, Volume2, Bell, HelpCircle, Shield, Monitor } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  ArrowLeft,
+  Bluetooth,
+  Volume2,
+  Bell,
+  HelpCircle,
+  Shield,
+  Monitor,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -16,8 +24,8 @@ interface SettingsPageProps {
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
-  const [bluetoothStatus] = useState('Connected to PM-2023X');
-  
+  const [bluetoothStatus] = useState("Connected to PM-2023X");
+
   return (
     <Card className="w-full bg-white rounded-2xl shadow-xl p-8">
       {/* Header */}
@@ -30,7 +38,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
 
       {/* Device Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">Device Settings</h3>
+        <h3 className="text-lg font-medium text-gray-700 mb-4">
+          Device Settings
+        </h3>
         <div className="space-y-4">
           {/* Connected Device */}
           <div className="bg-blue-50 rounded-xl p-4">
@@ -42,8 +52,8 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
                   <div className="text-sm text-gray-600">{bluetoothStatus}</div>
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
               >
                 Change
@@ -73,7 +83,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
 
       {/* Application Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">Application Settings</h3>
+        <h3 className="text-lg font-medium text-gray-700 mb-4">
+          Application Settings
+        </h3>
         <div className="space-y-4">
           {/* Sound Alerts */}
           <div className="flex items-center justify-between p-4">
@@ -97,7 +109,9 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
 
       {/* Help & Support */}
       <div>
-        <h3 className="text-lg font-medium text-gray-700 mb-4">Help & Support</h3>
+        <h3 className="text-lg font-medium text-gray-700 mb-4">
+          Help & Support
+        </h3>
         <div className="space-y-4">
           {/* View Tutorial */}
           <div className="flex items-center space-x-3 p-4 hover:bg-gray-50 rounded-lg cursor-pointer">

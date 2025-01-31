@@ -38,9 +38,9 @@
 //   );
 // };
 // src/components/LandingPage.tsx
-import React from 'react';
+import React from "react";
 import { Card } from "@/components/ui/card";
-import { Module } from '../types';
+import { Module } from "../types";
 
 interface LandingPageProps {
   onModuleSelect: (moduleId: number) => void;
@@ -48,10 +48,10 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   const modules: Module[] = [
-    { id: 1, title: 'Pacemaker Calibration' },
-    { id: 2, title: 'Atrial Fibrillation' },
-    { id: 3, title: 'Tachycardia' },
-    { id: 4, title: "Why isn't the Pacemaker Working?" }
+    { id: 1, title: "Pacemaker Calibration" },
+    { id: 2, title: "Atrial Fibrillation" },
+    { id: 3, title: "Tachycardia" },
+    { id: 4, title: "Why isn't the Pacemaker Working?" },
   ];
 
   return (
@@ -71,7 +71,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
         <h2 className="text-xl font-semibold mb-4">Modules:</h2>
         <div className="space-y-3">
           {/* Tutorial Module */}
-          <div 
+          <div
             className="p-4 bg-[#F0F6FE] hover:bg-blue-100 transition-colors duration-200 rounded-lg cursor-pointer"
             onClick={() => onModuleSelect(0)}
           >

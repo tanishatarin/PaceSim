@@ -1,5 +1,5 @@
-import React from 'react';
-import { Settings, User } from 'lucide-react';
+import React from "react";
+import { Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface LayoutProps {
@@ -15,14 +15,14 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onNavigate('settings')}
+            onClick={() => onNavigate("settings")}
           >
             <Settings className="w-5 h-5" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onNavigate('profile')}
+            onClick={() => onNavigate("profile")}
           >
             <User className="w-5 h-5" />
           </Button>

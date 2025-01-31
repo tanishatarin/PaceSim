@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowLeft, User, Clock, Award, History } from 'lucide-react';
+import React from "react";
+import { ArrowLeft, User, Clock, Award, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface ProfilePageProps {
@@ -9,14 +9,14 @@ interface ProfilePageProps {
 interface Session {
   scenario: string;
   date: string;
-  status: 'Completed' | 'In Progress';
+  status: "Completed" | "In Progress";
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
   const sessions: Session[] = [
     { scenario: "Atrial Fibrillation", date: "Today", status: "Completed" },
     { scenario: "Basic Calibration", date: "Yesterday", status: "Completed" },
-    { scenario: "Tachycardia", date: "3 days ago", status: "In Progress" }
+    { scenario: "Tachycardia", date: "3 days ago", status: "In Progress" },
   ];
 
   return (
@@ -35,7 +35,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
           <User className="w-10 h-10 text-blue-600" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-800">Dr. Sarah Johnson</h3>
+          <h3 className="text-xl font-semibold text-gray-800">
+            Dr. Sarah Johnson
+          </h3>
           <p className="text-gray-600">Cardiology Fellow</p>
           <p className="text-sm text-gray-500">Cleveland Clinic</p>
         </div>
@@ -67,14 +69,23 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
         </div>
         <div className="space-y-3">
           {sessions.map((session, i) => (
-            <div key={i} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+            <div
+              key={i}
+              className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0"
+            >
               <div>
-                <div className="font-medium text-gray-800">{session.scenario}</div>
+                <div className="font-medium text-gray-800">
+                  {session.scenario}
+                </div>
                 <div className="text-sm text-gray-500">{session.date}</div>
               </div>
-              <span className={`text-sm ${
-                session.status === 'Completed' ? 'text-green-600' : 'text-blue-600'
-              }`}>
+              <span
+                className={`text-sm ${
+                  session.status === "Completed"
+                    ? "text-green-600"
+                    : "text-blue-600"
+                }`}
+              >
                 {session.status}
               </span>
             </div>

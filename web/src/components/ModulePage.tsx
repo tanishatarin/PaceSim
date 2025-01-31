@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Lightbulb, Activity } from 'lucide-react';
+import React, { useState } from "react";
+import { ArrowLeft, Lightbulb, Activity } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ECGVisualizer from "@/components/ECGVisualizer";
@@ -10,9 +10,9 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
-  const [sensorStates] = useState({ 
-    left: true, 
-    right: true 
+  const [sensorStates] = useState({
+    left: true,
+    right: true,
   });
 
   return (
@@ -51,8 +51,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
           {/* EKG Visualization Area */}
           <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64 flex items-center justify-center">
-            <ECGVisualizer />  {/* this is the new code, can comment it out bc sizing is wrong */}
-            {/* <Activity className="w-full h-32 text-gray-400" /> */}
+            {/* <ECGVisualizer />{" "} */}
+            {/* this is the new code, can comment it out bc sizing is wrong */}
+            {/* <RealisticEKG rate={rate} aOutput={aOutput} vOutput={vOutput} /> */}
           </div>
         </div>
 
@@ -62,12 +63,16 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="font-bold mb-4">Sensing Lights:</h3>
             <div className="flex justify-around">
-              <div className={`w-16 h-16 rounded-full ${
-                sensorStates.left ? 'bg-green-400' : 'bg-gray-300'
-              }`} />
-              <div className={`w-16 h-16 rounded-full ${
-                sensorStates.right ? 'bg-blue-400' : 'bg-gray-300'
-              }`} />
+              <div
+                className={`w-16 h-16 rounded-full ${
+                  sensorStates.left ? "bg-green-400" : "bg-gray-300"
+                }`}
+              />
+              <div
+                className={`w-16 h-16 rounded-full ${
+                  sensorStates.right ? "bg-blue-400" : "bg-gray-300"
+                }`}
+              />
             </div>
           </div>
 
