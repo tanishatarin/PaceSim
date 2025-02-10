@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ArrowLeft, Lightbulb, Activity } from "lucide-react";
+import React, { useState } from 'react';
+import { ArrowLeft, Lightbulb } from 'lucide-react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ECGVisualizer from "@/components/ECGVisualizer";
@@ -10,9 +10,9 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
-  const [sensorStates] = useState({
-    left: true,
-    right: true,
+  const [sensorStates] = useState({ 
+    left: true, 
+    right: true 
   });
 
   return (
@@ -43,17 +43,15 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           </div>
 
           {/* Step Section */}
-          <div className="bg-red-100 rounded-xl p-4">
+          <div className="bg-red-100 rounded-xl p-2">
             <h3 className="font-bold text-red-900">
               Step 1: Set the Sensing Threshold
             </h3>
           </div>
 
           {/* EKG Visualization Area */}
-          <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64 flex items-center justify-center">
-            {/* <ECGVisualizer />{" "} */}
-            {/* this is the new code, can comment it out bc sizing is wrong */}
-            {/* <RealisticEKG rate={rate} aOutput={aOutput} vOutput={vOutput} /> */}
+          <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64">
+            {/* <ECGVisualizer /> */}
           </div>
         </div>
 
@@ -76,21 +74,19 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             </div>
           </div>
 
-          {/* Pacemaker Info */}
+          {/* HR Display */}
           <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="font-bold mb-4">Pacemaker Info:</h3>
-            <div className="space-y-3">
-              {[
-                { label: "Rate", value: "70 PPM" },
-                { label: "A Output", value: "3.5 mA" },
-                { label: "V Output", value: "3.5 mA" },
-                { label: "V Sensitivity", value: "2.0 mA" },
-              ].map((info, i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span>{info.label}:</span>
-                  <span className="font-medium">{info.value}</span>
-                </div>
-              ))}
+            <h3 className="font-bold mb-2 text-gray-700">HR</h3>
+            <div className="flex justify-center">
+              <span className="text-5xl font text-gray-900">61</span>
+            </div>
+          </div>
+
+          {/* BP Display */}
+          <div className="bg-[#F0F6FE] rounded-xl p-4">
+            <h3 className="font-bold mb-2 text-gray-700">BP</h3>
+            <div className="flex justify-center">
+              <span className="text-5xl font text-gray-900">120/80</span>
             </div>
           </div>
         </div>
