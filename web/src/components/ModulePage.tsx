@@ -28,6 +28,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           variant="ghost"
           size="lg"
           className="bg-blue-100 rounded-xl p-4 w-14 h-14 flex items-center justify-center"
+          onClick={() => alert("Hint: Try adjusting the Sensing Threshold. p.s. make this pop up cuter")}
         >
           <Lightbulb className="w-8 h-8 text-blue-600" />
         </Button>
@@ -50,9 +51,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           </div>
 
           {/* EKG Visualization Area */}
-          <div className="bg-white rounded-xl border-2 border-gray-100 p-4 h-64">
-            {/* <ECGVisualizer /> */}
-          </div>
+            <div className="mt-6">
+              <ECGVisualizer 
+                rate={140} 
+                aOutput={20} 
+                vOutput={25} 
+              />
+           </div>
         </div>
 
         {/* Right Section (1 column) */}
@@ -75,18 +80,18 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           </div>
 
           {/* HR Display */}
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="font-bold mb-2 text-gray-700">HR</h3>
+          <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
+            <h3 className="font-bold mb-2">HR</h3>
             <div className="flex justify-center">
-              <span className="text-5xl font text-gray-900">61</span>
+              <span className="text-5xl font text-gray-600">61</span>
             </div>
           </div>
 
           {/* BP Display */}
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="font-bold mb-2 text-gray-700">BP</h3>
+          <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
+            <h3 className="font-bold mb-2">BP</h3>
             <div className="flex justify-center">
-              <span className="text-5xl font text-gray-900">120/80</span>
+              <span className="text-5xl font text-gray-600">120/80</span>
             </div>
           </div>
         </div>
