@@ -1,9 +1,13 @@
+// src/App.tsx
 import React from "react";
 import { Layout } from "./components/Layout";
 import { LandingPage } from "./components/LandingPage";
 import { SettingsPage } from "./components/SettingsPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { ModulePage } from "./components/ModulePage";
+import AuthWrapper from "./components/backend/AuthWrapper";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SessionProvider } from "./contexts/SessionContext";
 
 type Page = "landing" | "settings" | "profile" | "module";
 
@@ -35,9 +39,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E5EDF8] p-6">
-      <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
-    </div>
+    <AuthProvider>
+      <SessionProvider>
+        <AuthWrapper>
+          <div className="min-h-screen bg-[#E5EDF8] p-6">
+            <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
+          </div>
+        </AuthWrapper>
+      </SessionProvider>
+    </AuthProvider>
   );
 };
 
