@@ -127,7 +127,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
         </div>
         <div className="space-y-3">
           {latestSessions.length > 0 ? (
-            latestSessions.map((session, i) => (
+            latestSessions.map((session) => (
               <div
                 key={session.id}
                 className="flex items-center justify-between py-2 border-b border-gray-200 last:border-0"
