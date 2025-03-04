@@ -1,23 +1,27 @@
-// src/App.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Layout } from "./components/Layout";
 import { LandingPage } from "./components/LandingPage";
 import { SettingsPage } from "./components/SettingsPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { ModulePage } from "./components/ModulePage";
-import AuthWrapper from "./components/backend/AuthWrapper";
-import { AuthProvider } from "./contexts/AuthContext";
-import { SessionProvider } from "./contexts/SessionContext";
+import AuthPage from "./components/AuthPage";
+import { useAuth } from "./contexts/AuthContext";
 
 type Page = "landing" | "settings" | "profile" | "module";
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = React.useState<Page>("landing");
-  const [selectedModuleId, setSelectedModuleId] = React.useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<Page>("landing");
+  const [selectedModuleId, setSelectedModuleId] = useState<number>(1);
+  const { isAuthenticated, userData, logout } = useAuth();
 
   const handleModuleSelect = (moduleId: number) => {
     setSelectedModuleId(moduleId);
     setCurrentPage("module");
+  };
+
+  const handleAuthSuccess = (userData: any) => {
+    // This is now handled by the AuthContext
+    setCurrentPage("landing");
   };
 
   const renderCurrentPage = () => {
@@ -25,9 +29,9 @@ const App: React.FC = () => {
       case "landing":
         return <LandingPage onModuleSelect={handleModuleSelect} />;
       case "settings":
-        return <SettingsPage onBack={() => setCurrentPage("landing")} />;
+        return <SettingsPage onBack={() => setCurrentPage("landing")} onLogout={logout} />;
       case "profile":
-        return <ProfilePage onBack={() => setCurrentPage("landing")} />;
+        return <ProfilePage onBack={() => setCurrentPage("landing")} userData={userData} />;
       case "module":
         return (
           <ModulePage
@@ -38,16 +42,14 @@ const App: React.FC = () => {
     }
   };
 
+  if (!isAuthenticated) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
-    <AuthProvider>
-      <SessionProvider>
-        <AuthWrapper>
-          <div className="min-h-screen bg-[#E5EDF8] p-6">
-            <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
-          </div>
-        </AuthWrapper>
-      </SessionProvider>
-    </AuthProvider>
+    <div className="min-h-screen bg-[#E5EDF8] p-6">
+      <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
+    </div>
   );
 };
 

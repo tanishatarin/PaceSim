@@ -7,6 +7,7 @@ import {
   HelpCircle,
   Shield,
   Monitor,
+  LogOut,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -21,13 +22,14 @@ import { Button } from "@/components/ui/button";
 
 interface SettingsPageProps {
   onBack: () => void;
+  onLogout: () => void;
 }
 
-export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
+export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack, onLogout }) => {
   const [bluetoothStatus] = useState("Connected to PM-2023X");
 
   return (
-    <Card className="w-full bg-white rounded-2xl shadow-xl p-8">
+    <Card className="w-full p-8 bg-white shadow-xl rounded-2xl">
       {/* Header */}
       <div className="flex items-center mb-8">
         <button onClick={onBack} className="mr-4">
@@ -38,12 +40,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
 
       {/* Device Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
+        <h3 className="mb-4 text-lg font-medium text-gray-700">
           Device Settings
         </h3>
         <div className="space-y-4">
           {/* Connected Device */}
-          <div className="bg-blue-50 rounded-xl p-4">
+          <div className="p-4 bg-blue-50 rounded-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <Bluetooth className="w-5 h-5 text-blue-600" />
@@ -83,7 +85,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
 
       {/* Application Settings */}
       <div className="mb-8">
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
+        <h3 className="mb-4 text-lg font-medium text-gray-700">
           Application Settings
         </h3>
         <div className="space-y-4">
@@ -108,21 +110,38 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack }) => {
       </div>
 
       {/* Help & Support */}
-      <div>
-        <h3 className="text-lg font-medium text-gray-700 mb-4">
+      <div className="mb-8">
+        <h3 className="mb-4 text-lg font-medium text-gray-700">
           Help & Support
         </h3>
         <div className="space-y-4">
           {/* View Tutorial */}
-          <div className="flex items-center space-x-3 p-4 hover:bg-gray-50 rounded-lg cursor-pointer">
+          <div className="flex items-center p-4 space-x-3 rounded-lg cursor-pointer hover:bg-gray-50">
             <HelpCircle className="w-5 h-5 text-gray-600" />
             <span className="font-medium">View Tutorial</span>
           </div>
 
           {/* About PaceSim */}
-          <div className="flex items-center space-x-3 p-4 hover:bg-gray-50 rounded-lg cursor-pointer">
+          <div className="flex items-center p-4 space-x-3 rounded-lg cursor-pointer hover:bg-gray-50">
             <Shield className="w-5 h-5 text-gray-600" />
             <span className="font-medium">About PaceSim</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Account Section */}
+      <div>
+        <h3 className="mb-4 text-lg font-medium text-gray-700">
+          Account
+        </h3>
+        <div className="space-y-4">
+          {/* Logout Button */}
+          <div 
+            className="flex items-center p-4 space-x-3 text-red-600 rounded-lg cursor-pointer hover:bg-red-50"
+            onClick={onLogout}  
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Logout</span>
           </div>
         </div>
       </div>

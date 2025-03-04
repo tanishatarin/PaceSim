@@ -1,216 +1,100 @@
-// src/contexts/SessionContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useAuth } from './AuthContext';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Define session interface
-export interface Session {
+interface Session {
   id: string;
-  userId: string;
-  moduleId: number;
+  moduleId: string;
   moduleName: string;
-  startTime: Date;
-  endTime?: Date;
-  duration?: number; // in seconds
-  completed: boolean;
-  score?: number;
-  maxScore?: number;
-  attempts: number;
+  startTime: string;
+  endTime?: string;
+  isCompleted: boolean;
+  isSuccess?: boolean;
 }
 
-// Define the context interface
 interface SessionContextType {
   currentSession: Session | null;
-  recentSessions: Session[];
-  isLoading: boolean;
-  startSession: (moduleId: number, moduleName: string) => void;
-  completeSession: (score: number, maxScore: number) => void;
-  abandonSession: () => void;
+  sessionHistory: Session[];
+  startSession: (moduleId: string, moduleName: string) => void;
+  endSession: (isSuccess: boolean) => void;
+  getSessions: () => Session[];
 }
 
-// Create the context
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
-// Mock recent sessions data
-const MOCK_SESSIONS: Session[] = [
-  {
-    id: '1',
-    userId: '1',
-    moduleId: 3,
-    moduleName: 'Atrial Fibrillation',
-    startTime: new Date('2025-02-27T10:00:00'),
-    endTime: new Date('2025-02-27T10:25:00'),
-    duration: 1500, // 25 minutes
-    completed: true,
-    score: 85,
-    maxScore: 100,
-    attempts: 1,
-  },
-  {
-    id: '2',
-    userId: '1',
-    moduleId: 1,
-    moduleName: 'Basic Calibration',
-    startTime: new Date('2025-02-26T14:30:00'),
-    endTime: new Date('2025-02-26T15:15:00'),
-    duration: 2700, // 45 minutes
-    completed: true,
-    score: 92,
-    maxScore: 100,
-    attempts: 1,
-  },
-  {
-    id: '3',
-    userId: '1',
-    moduleId: 2,
-    moduleName: 'Tachycardia',
-    startTime: new Date('2025-02-24T09:15:00'),
-    endTime: undefined,
-    duration: 1800, // 30 minutes so far
-    completed: false,
-    attempts: 1,
-  },
-];
-
-// Provider component
-interface SessionProviderProps {
-  children: ReactNode;
-}
-
-export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) => {
-  const { user } = useAuth();
+export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
-  const [recentSessions, setRecentSessions] = useState<Session[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [sessionHistory, setSessionHistory] = useState<Session[]>([]);
 
-  // Load sessions when the user changes
+  // Load session history from localStorage on initial render
   useEffect(() => {
-    const loadSessions = async () => {
-      setIsLoading(true);
+    const savedSessions = localStorage.getItem('pacesim_sessions');
+    if (savedSessions) {
       try {
-        if (user) {
-          // In a real app, we would fetch from an API
-          // For now, use mock data
-          const userSessions = MOCK_SESSIONS.filter(session => session.userId === user.id);
-          setRecentSessions(userSessions);
-          
-          // Check for any incomplete sessions
-          const incompleteSession = userSessions.find(session => !session.completed);
-          if (incompleteSession) {
-            setCurrentSession(incompleteSession);
-          } else {
-            setCurrentSession(null);
-          }
-        } else {
-          setRecentSessions([]);
-          setCurrentSession(null);
-        }
+        setSessionHistory(JSON.parse(savedSessions));
       } catch (error) {
-        console.error("Error loading sessions:", error);
-      } finally {
-        setIsLoading(false);
+        console.error('Error parsing session history:', error);
+        localStorage.removeItem('pacesim_sessions');
       }
-    };
+    }
+  }, []);
 
-    loadSessions();
-  }, [user]);
+  // Save session history to localStorage when it changes
+  useEffect(() => {
+    if (sessionHistory.length > 0) {
+      localStorage.setItem('pacesim_sessions', JSON.stringify(sessionHistory));
+    }
+  }, [sessionHistory]);
 
-  // Start a new session
-  const startSession = (moduleId: number, moduleName: string) => {
-    if (!user) return;
-
+  const startSession = (moduleId: string, moduleName: string) => {
     // Create a new session
     const newSession: Session = {
       id: `session_${Date.now()}`,
-      userId: user.id,
       moduleId,
       moduleName,
-      startTime: new Date(),
-      completed: false,
-      attempts: 1,
+      startTime: new Date().toISOString(),
+      isCompleted: false
     };
-
-    // Update current session
+    
     setCurrentSession(newSession);
-    
-    // Add to recent sessions
-    setRecentSessions(prev => [newSession, ...prev]);
-
-    // In a real app, we would send this to the backend
-    console.log("Session started:", newSession);
   };
 
-  // Complete a session
-  const completeSession = (score: number, maxScore: number) => {
-    if (!currentSession || !user) return;
-
-    const now = new Date();
-    const duration = Math.floor((now.getTime() - currentSession.startTime.getTime()) / 1000);
-
-    // Update the current session
-    const completedSession: Session = {
-      ...currentSession,
-      endTime: now,
-      duration,
-      completed: true,
-      score,
-      maxScore,
-    };
-
-    // Update state
-    setCurrentSession(null);
-    setRecentSessions(prev => 
-      prev.map(session => 
-        session.id === completedSession.id ? completedSession : session
-      )
-    );
-
-    // In a real app, we would send this to the backend
-    console.log("Session completed:", completedSession);
-    
-    return completedSession;
+  const endSession = (isSuccess: boolean) => {
+    if (currentSession) {
+      // Update the current session
+      const completedSession: Session = {
+        ...currentSession,
+        endTime: new Date().toISOString(),
+        isCompleted: true,
+        isSuccess
+      };
+      
+      // Add to history
+      setSessionHistory(prevHistory => [...prevHistory, completedSession]);
+      
+      // Clear current session
+      setCurrentSession(null);
+    }
   };
 
-  // Abandon a session
-  const abandonSession = () => {
-    if (!currentSession || !user) return;
-
-    const now = new Date();
-    const duration = Math.floor((now.getTime() - currentSession.startTime.getTime()) / 1000);
-
-    // Update the abandoned session
-    const abandonedSession: Session = {
-      ...currentSession,
-      endTime: now,
-      duration,
-    };
-
-    // Update state
-    setCurrentSession(null);
-    setRecentSessions(prev => 
-      prev.map(session => 
-        session.id === abandonedSession.id ? abandonedSession : session
-      )
-    );
-
-    // In a real app, we would send this to the backend
-    console.log("Session abandoned:", abandonedSession);
+  const getSessions = () => {
+    return sessionHistory;
   };
 
-  // Context value
-  const value = {
-    currentSession,
-    recentSessions,
-    isLoading,
-    startSession,
-    completeSession,
-    abandonSession,
-  };
-
-  return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+  return (
+    <SessionContext.Provider 
+      value={{ 
+        currentSession, 
+        sessionHistory, 
+        startSession, 
+        endSession, 
+        getSessions 
+      }}
+    >
+      {children}
+    </SessionContext.Provider>
+  );
 };
 
-// Hook for using the session context
-export const useSession = () => {
+export const useSession = (): SessionContextType => {
   const context = useContext(SessionContext);
   if (context === undefined) {
     throw new Error('useSession must be used within a SessionProvider');

@@ -1,84 +1,42 @@
-// src/components/ProfilePage.tsx
 import React from "react";
-import { ArrowLeft, User, Clock, Award, History, LogOut } from "lucide-react";
+import { ArrowLeft, User, Clock, Award, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { useSession } from "@/contexts/SessionContext";
 
 interface ProfilePageProps {
   onBack: () => void;
+  userData?: any; // Add user data prop
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
-  const { user, stats, logout } = useAuth();
-  const { recentSessions } = useSession();
+interface Session {
+  scenario: string;
+  date: string;
+  status: "Completed" | "In Progress";
+}
 
-  // Format the time in hours and minutes
-  const formatTime = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}${mins > 0 ? `.${mins}` : ''} hrs`;
-  };
+export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, userData }) => {
+  const sessions: Session[] = [
+    { scenario: "Atrial Fibrillation", date: "Today", status: "Completed" },
+    { scenario: "Basic Calibration", date: "Yesterday", status: "Completed" },
+    { scenario: "Tachycardia", date: "3 days ago", status: "In Progress" },
+  ];
 
-  // Format date for display
-  const formatDate = (date: Date) => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const sessionDate = new Date(date);
-    const sessionDay = new Date(
-      sessionDate.getFullYear(),
-      sessionDate.getMonth(),
-      sessionDate.getDate()
-    );
-    
-    if (sessionDay.getTime() === today.getTime()) {
-      return "Today";
-    } else if (sessionDay.getTime() === yesterday.getTime()) {
-      return "Yesterday";
-    } else {
-      // Calculate days difference
-      const diffTime = Math.abs(today.getTime() - sessionDay.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays < 7) {
-        return `${diffDays} days ago`;
-      } else {
-        return sessionDate.toLocaleDateString();
-      }
-    }
-  };
-
-  // Get the 3 most recent sessions
-  const latestSessions = recentSessions.slice(0, 3);
-
-  // Handle logout
-  const handleLogout = () => {
-    logout();
+  // Default user information if userData is not provided
+  const userInfo = {
+    name: userData?.name || userData?.username || "Dr. Sarah Johnson",
+    role: userData?.role || "Cardiology Fellow",
+    institution: userData?.institution || "Cleveland Clinic",
+    trainingTime: userData?.trainingTime || "12.5 hrs",
+    successRate: userData?.successRate || "85%"
   };
 
   return (
     <Card className="w-full p-8 bg-white shadow-xl rounded-2xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <button onClick={onBack} className="mr-4">
-            <ArrowLeft className="w-6 h-6 text-gray-600" />
-          </button>
-          <h2 className="text-2xl font-bold text-gray-800">Profile</h2>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLogout}
-          className="text-gray-600 hover:text-red-600"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Logout
-        </Button>
+      <div className="flex items-center mb-6">
+        <button onClick={onBack} className="mr-4">
+          <ArrowLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <h2 className="text-2xl font-bold text-gray-800">Profile</h2>
       </div>
 
       {/* Basic Info */}
@@ -88,12 +46,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
         </div>
         <div>
           <h3 className="text-xl font-semibold text-gray-800">
-            {user?.name}
+            {userInfo.name}
           </h3>
-          <p className="text-gray-600">{user?.role}</p>
-          {user?.institution && (
-            <p className="text-sm text-gray-500">{user.institution}</p>
-          )}
+          <p className="text-gray-600">{userInfo.role}</p>
+          <p className="text-sm text-gray-500">{userInfo.institution}</p>
         </div>
       </div>
 
@@ -104,18 +60,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
             <Clock className="w-4 h-4 mr-2" />
             <span className="text-sm">Training Time</span>
           </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {stats ? formatTime(stats.totalTime) : '0 hrs'}
-          </div>
+          <div className="text-2xl font-bold text-gray-800">{userInfo.trainingTime}</div>
         </div>
         <div className="p-4 bg-gray-50 rounded-xl">
           <div className="flex items-center mb-1 text-gray-600">
             <Award className="w-4 h-4 mr-2" />
             <span className="text-sm">Success Rate</span>
           </div>
-          <div className="text-2xl font-bold text-gray-800">
-            {stats ? `${stats.successRate}%` : '0%'}
-          </div>
+          <div className="text-2xl font-bold text-gray-800">{userInfo.successRate}</div>
         </div>
       </div>
 
@@ -123,39 +75,31 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
       <div className="p-4 bg-gray-50 rounded-xl">
         <div className="flex items-center mb-4">
           <History className="w-5 h-5 mr-2 text-gray-600" />
-          <h4 className="font-semibold text-gray-700">Last {latestSessions.length} Sessions</h4>
+          <h4 className="font-semibold text-gray-700">Last 3 Sessions</h4>
         </div>
         <div className="space-y-3">
-          {latestSessions.length > 0 ? (
-            latestSessions.map((session) => (
-              <div
-                key={session.id}
-                className="flex items-center justify-between py-2 border-b border-gray-200 last:border-0"
-              >
-                <div>
-                  <div className="font-medium text-gray-800">
-                    {session.moduleName}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {formatDate(session.startTime)}
-                  </div>
+          {sessions.map((session, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between py-2 border-b border-gray-200 last:border-0"
+            >
+              <div>
+                <div className="font-medium text-gray-800">
+                  {session.scenario}
                 </div>
-                <span
-                  className={`text-sm ${
-                    session.completed
-                      ? "text-green-600"
-                      : "text-blue-600"
-                  }`}
-                >
-                  {session.completed ? "Completed" : "In Progress"}
-                </span>
+                <div className="text-sm text-gray-500">{session.date}</div>
               </div>
-            ))
-          ) : (
-            <div className="py-4 text-center text-gray-500">
-              No sessions yet
+              <span
+                className={`text-sm ${
+                  session.status === "Completed"
+                    ? "text-green-600"
+                    : "text-blue-600"
+                }`}
+              >
+                {session.status}
+              </span>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </Card>

@@ -97,7 +97,7 @@
 //   }, [rate, aOutput, vOutput]);
 
 //   return (
-//     <div className="w-full h-96 bg-black p-4 rounded-lg">
+//     <div className="w-full p-4 bg-black rounded-lg h-96">
 //       <ResponsiveContainer width="100%" height="100%">
 //         <LineChart
 //           data={data}
@@ -246,7 +246,7 @@
 //   }, [rate, aOutput, vOutput]);
 
 //   return (
-//     <div className="w-full h-96 bg-black rounded-lg overflow-hidden">
+//     <div className="w-full overflow-hidden bg-black rounded-lg h-96">
 //       <ResponsiveContainer width="100%" height="100%">
 //         <LineChart
 //           data={data}
@@ -377,7 +377,7 @@ const ECGVisualizer = ({ rate = 150, aOutput = 5, vOutput = 5 }) => {
   }, [rate, aOutput, vOutput]);
 
   return (
-    <div className="w-full h-64 bg-black rounded-lg overflow-hidden">
+    <div className="w-full h-64 overflow-hidden bg-black rounded-lg">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
