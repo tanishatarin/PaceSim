@@ -9,10 +9,10 @@ interface AuthWrapperProps {
 }
 
 const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const { userData } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
 
-  if (isLoading) {
+  {/*if (isLoading) {
     return (
       <div className="min-h-screen bg-[#E5EDF8] flex items-center justify-center p-6">
         <div className="text-center">
@@ -21,9 +21,9 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
         </div>
       </div>
     );
-  }
+  }*/}
 
-  if (!user) {
+  if (!userData) {
     return (
       <div className="min-h-screen bg-[#E5EDF8] flex items-center justify-center p-6">
         {showLogin ? (
