@@ -53,7 +53,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
                   <User className="w-4 h-4 text-blue-700" />
                 </div>
-                <span className="hidden text-sm font-medium md:inline-block">{userData?.name.split(' ')[0]}</span>
+                <span className="hidden text-sm font-medium md:inline-block">  {userData?.name?.split(' ')[0] ?? ""}
+                </span>
               </Button>
               
               {/* Dropdown menu */}

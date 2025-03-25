@@ -295,7 +295,9 @@ import {
 } from "recharts";
 
 const ECGVisualizer = ({ rate = 150, aOutput = 5, vOutput = 5 }) => {
-  const [data, setData] = useState([]);
+  type Point = { x: number; y: number };
+
+  const [data, setData] = useState<Point[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Define the base complex with physiologically accurate wave morphology
@@ -319,13 +321,13 @@ const ECGVisualizer = ({ rate = 150, aOutput = 5, vOutput = 5 }) => {
   ];
 
   // Non-linear scaling function to simulate physiological response
-  const calculateNonLinearScale = (output, maxResponse = 5) => {
+  const calculateNonLinearScale = (output : number, maxResponse = 5) => {
     return Math.min(maxResponse, Math.log(output + 1) / Math.log(6));
   };
 
   // Generate multiple complexes with amplitude adjustments
   const generatePoints = () => {
-    const points = [];
+    const points: Point[] = [];
     const numberOfComplexes = 10;
     
     const aScale = calculateNonLinearScale(aOutput, 1);
