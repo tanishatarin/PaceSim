@@ -8,10 +8,33 @@ interface LandingPageProps {
   onModuleSelect: (moduleId: number) => void;
 }
 
+type ECGMode =
+  | "normal"
+  | "failure_to_capture"
+  | "failure_to_sense"
+  | "bariatric_capture"
+  | "third_degree_block"
+  | "afib"
+  | "second_degree_block"
+  | "slow_junctional"
+  | "asystole";
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   const { sessionHistory } = useSession();
   const { userData } = useAuth();
   const [recentModule, setRecentModule] = useState<{id: number, title: string} | null>(null);
+
+  const moduleModes: Record<number, ECGMode> = {
+    0: "normal",               // Tutorial
+    1: "normal",               // Calibration
+    2: "third_degree_block",
+    3: "afib",
+    4: "second_degree_block",
+    5: "slow_junctional",
+    6: "failure_to_sense",
+    7: "bariatric_capture",
+    8: "asystole",
+  };
 
   useEffect(() => {
     // Find the most recent session

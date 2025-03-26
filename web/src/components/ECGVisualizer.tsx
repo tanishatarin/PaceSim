@@ -293,9 +293,34 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import {
+  generateNormalPacingPoints,
+  generateFailureToCapturePoints,
+  generateFailureToSensePoints,
+  generateBariatricCapturePoints,
+  generateThirdDegreeBlockPoints,
+  generateAfibPoints,
+  generateSecondDegreeBlockPoints,
+  generateSlowJunctionalPoints,
+  generateAsystolePoints,
+} from "@/components/ecgModes";
 
-const ECGVisualizer = ({ rate = 150, aOutput = 5, vOutput = 5 }) => {
-  type Point = { x: number; y: number };
+interface ECGVisualizerProps {
+  rate?: number;
+  aOutput?: number;
+  vOutput?: number;
+  sensitivity?: number;
+  mode?: "normal" | "failure_to_capture" | "failure_to_sense" | "bariatric_capture" |
+   "third_degree_block" | "afib" | "second_degree_block" | "slow_junctional" | "asystole"
+}
+
+const ECGVisualizer = ({
+  rate = 150,
+  aOutput = 5,
+  vOutput = 5,
+  sensitivity = 1,
+  mode = "normal",
+}: ECGVisualizerProps) => {  type Point = { x: number; y: number };
 
   const [data, setData] = useState<Point[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -321,42 +346,35 @@ const ECGVisualizer = ({ rate = 150, aOutput = 5, vOutput = 5 }) => {
   ];
 
   // Non-linear scaling function to simulate physiological response
-  const calculateNonLinearScale = (output : number, maxResponse = 5) => {
+  {/*const calculateNonLinearScale = (output : number, maxResponse = 5) => {
     return Math.min(maxResponse, Math.log(output + 1) / Math.log(6));
-  };
+  };*/}
 
   // Generate multiple complexes with amplitude adjustments
-  const generatePoints = () => {
-    const points: Point[] = [];
-    const numberOfComplexes = 10;
-    
-    const aScale = calculateNonLinearScale(aOutput, 1);
-    const vScale = calculateNonLinearScale(vOutput, 5);
-
-    for (let i = 0; i < numberOfComplexes; i++) {
-      baseComplex.forEach((point) => {
-        let scaledY = point.y;
-        
-        if (point.x % baseComplex.length >= 1 && point.x % baseComplex.length <= 3) {
-          scaledY = point.y * aScale;
-        }
-        
-        if (point.x % baseComplex.length >= 5 && point.x % baseComplex.length <= 7) {
-          scaledY = point.y * vScale;
-        }
-
-        if (point.x % baseComplex.length >= 10 && point.x % baseComplex.length <= 12) {
-          scaledY = point.y * (vScale * 0.3);
-        }
-
-        points.push({
-          x: point.x + i * baseComplex.length,
-          y: scaledY,
-        });
-      });
+  const generatePoints = (): Point[] => {
+    switch (mode) {
+      case "failure_to_capture":
+        return generateFailureToCapturePoints({ rate, aOutput, vOutput, sensitivity });
+      case "failure_to_sense":
+        return generateFailureToSensePoints({ rate, aOutput, vOutput, sensitivity });
+      case "bariatric_capture":
+        return generateBariatricCapturePoints({ rate, aOutput, vOutput, sensitivity });
+      case "third_degree_block":
+        return generateThirdDegreeBlockPoints({ rate, aOutput, vOutput, sensitivity });
+      case "afib":
+        return generateAfibPoints({ rate, aOutput, vOutput, sensitivity });
+      case "second_degree_block":
+        return generateSecondDegreeBlockPoints({ rate, aOutput, vOutput, sensitivity });
+      case "slow_junctional":
+        return generateSlowJunctionalPoints({ rate, aOutput, vOutput, sensitivity });
+      case "asystole":
+        return generateAsystolePoints({ rate, aOutput, vOutput, sensitivity });
+      default:
+        return generateNormalPacingPoints({ rate, aOutput, vOutput, sensitivity })
+        ;
     }
-    return points;
   };
+  
 
   useEffect(() => {
     const points = generatePoints();

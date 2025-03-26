@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Lightbulb, CheckCircle, XCircle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Lightbulb, CheckCircle, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ECGVisualizer from "@/components/ECGVisualizer";
@@ -12,14 +12,14 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
-  const [sensorStates] = useState({ 
-    left: true, 
-    right: true 
+  const [sensorStates] = useState({
+    left: true,
+    right: true,
   });
-  
+
   const [showCompletion, setShowCompletion] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   const { userData } = useAuth();
   const { startSession, endSession } = useSession();
 
@@ -28,14 +28,77 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     id: moduleId.toString(),
     title: getModuleTitle(moduleId),
     objective: getModuleObjective(moduleId),
-    step: "Set the Sensing Threshold"
+    step: "Set the Sensing Threshold",
   };
+
+  type ECGMode =
+    | "normal"
+    | "failure_to_capture"
+    | "failure_to_sense"
+    | "bariatric_capture"
+    | "third_degree_block"
+    | "afib"
+    | "second_degree_block"
+    | "slow_junctional"
+    | "asystole";
+
+    {/*  generateNormalPacingPoints,
+  generateFailureToCapturePoints,
+  generateFailureToSensePoints,
+  generateBariatricCapturePoints,
+  generateThirdDegreeBlockPoints,
+  generateAfibPoints,
+  generateSecondDegreeBlockPoints,
+  generateSlowJunctionalPoints,
+  generateAsystolePoints, */}
+
+  
+  const moduleModes: Record<number, ECGMode> = {
+    0: "normal", // Tutorial
+    1: "normal", // Calibration
+    2: "third_degree_block",
+    3: "afib",
+    4: "second_degree_block",
+    5: "slow_junctional",
+    6: "failure_to_sense",
+    7: "bariatric_capture",
+    8: "asystole",
+  };
+
+  const moduleSettings: Record<
+    number,
+    { rate: number; aOutput: number; vOutput: number; sensitivity: number }
+  > = {
+    0: { rate: 80, aOutput: 5, vOutput: 5, sensitivity: 2 },
+    1: { rate: 100, aOutput: 6, vOutput: 8, sensitivity: 2 },
+    2: { rate: 60, aOutput: 3, vOutput: 5, sensitivity: 3 },
+    3: { rate: 90, aOutput: 0, vOutput: 5, sensitivity: 2 },
+    4: { rate: 70, aOutput: 5, vOutput: 5, sensitivity: 2 },
+    5: { rate: 50, aOutput: 0, vOutput: 3, sensitivity: 2 },
+    6: { rate: 80, aOutput: 3, vOutput: 5, sensitivity: 5 },
+    7: { rate: 100, aOutput: 4, vOutput: 11, sensitivity: 2 },
+    8: { rate: 90, aOutput: 0, vOutput: 6, sensitivity: 2 },
+  };
+
+  const settings = moduleSettings[moduleId] ?? {
+    rate: 80,
+    aOutput: 5,
+    vOutput: 5,
+    sensitivity: 2,
+  };
+
+  const [rate, setRate] = useState(settings.rate);
+  const [aOutput, setAOutput] = useState(settings.aOutput);
+  const [vOutput, setVOutput] = useState(settings.vOutput);
+  const [sensitivity, setSensitivity] = useState(settings.sensitivity);
+
+  const mode = moduleModes[moduleId] ?? "normal";
 
   // Start tracking time when the module is loaded
   useEffect(() => {
     // Start tracking in Session context
     startSession(moduleInfo.id, moduleInfo.title);
-    
+
     // Clean up function to end session if user navigates away without completing
     return () => {
       if (!showCompletion) {
@@ -47,7 +110,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const handleComplete = (success: boolean) => {
     setIsSuccess(success);
     setShowCompletion(true);
-    
+
     // End training session
     endSession(success);
   };
@@ -82,18 +145,14 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               </p>
             </>
           )}
-          
+
           <div className="flex space-x-4">
-            <Button 
-              variant="outline" 
-              className="px-6" 
-              onClick={handleBack}
-            >
+            <Button variant="outline" className="px-6" onClick={handleBack}>
               Return to Menu
             </Button>
-            
-            <Button 
-              className="px-6" 
+
+            <Button
+              className="px-6"
               onClick={() => {
                 setShowCompletion(false);
                 startSession(moduleInfo.id, moduleInfo.title);
@@ -143,13 +202,15 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           </div>
 
           {/* EKG Visualization Area */}
-            <div className="mt-6">
-              <ECGVisualizer 
-                rate={140} 
-                aOutput={20} 
-                vOutput={25} 
-              />
-           </div>
+          <div className="mt-6">
+            <ECGVisualizer
+              rate={rate}
+              aOutput={aOutput}
+              vOutput={vOutput}
+              sensitivity={sensitivity}
+              mode={mode}
+            />{" "}
+          </div>
         </div>
 
         {/* Right Section (1 column) */}
@@ -186,7 +247,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">120/80</span>
             </div>
           </div>
-          
+
           {/* Complete/Fail Buttons (for demo) */}
           <div className="flex mt-6 space-x-3">
             <Button
@@ -234,7 +295,7 @@ function getModuleTitle(moduleId: number): string {
     7: "Bariatric capture",
     8: "Asystole",
   };
-  
+
   return titles[moduleId] || "Unknown Module";
 }
 
@@ -250,7 +311,7 @@ function getModuleObjective(moduleId: number): string {
     7: "Correct inadequate capture thresholds",
     8: "Intervene in a case of Asystole",
   };
-  
+
   return objectives[moduleId] || "Complete the module tasks";
 }
 
