@@ -314,6 +314,16 @@ interface ECGVisualizerProps {
    "third_degree_block" | "afib" | "second_degree_block" | "slow_junctional" | "asystole"
 }
 
+{/*  generateNormalPacingPoints,
+  generateFailureToCapturePoints,
+  generateFailureToSensePoints,
+  generateBariatricCapturePoints,
+  generateThirdDegreeBlockPoints,
+  generateAfibPoints,
+  generateSecondDegreeBlockPoints,
+  generateSlowJunctionalPoints,
+  generateAsystolePoints, */}
+
 const ECGVisualizer = ({
   rate = 150,
   aOutput = 5,
