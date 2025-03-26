@@ -450,7 +450,7 @@ const ECGVisualizer = ({
     }, updateInterval);
 
     return () => clearInterval(interval);
-  }, [rate, aOutput, vOutput]);
+  }, [rate, aOutput, vOutput, sensitivity]);
 
   return (
     <div className="w-full h-64 overflow-hidden bg-black rounded-lg">

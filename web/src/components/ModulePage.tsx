@@ -67,6 +67,8 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     9: "asystole",
   };
 
+  const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
+
   const moduleSettings: Record<
     number,
     { rate: number; aOutput: number; vOutput: number; sensitivity: number }
@@ -89,12 +91,14 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     sensitivity: 2,
   };
 
-  const [rate, setRate] = useState(settings.rate);
-  const [aOutput, setAOutput] = useState(settings.aOutput);
-  const [vOutput, setVOutput] = useState(settings.vOutput);
-  const [sensitivity, setSensitivity] = useState(settings.sensitivity);
+  const [rate, setRate] = useState(moduleSettings[moduleId].rate);
+  const [aOutput, setAOutput] = useState(moduleSettings[moduleId].aOutput);
+  const [vOutput, setVOutput] = useState(moduleSettings[moduleId].vOutput);
+  const [sensitivity, setSensitivity] = useState(
+    moduleSettings[moduleId].sensitivity,
+  );
 
-  const mode = moduleModes[moduleId] ?? "normal";
+  //const mode = moduleModes[moduleId] ?? "normal";
 
   // Start tracking time when the module is loaded
   useEffect(() => {
@@ -233,7 +237,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               />
             </div>
           </div>
-
           {/* HR Display */}
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">HR</h3>
@@ -241,7 +244,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">61</span>
             </div>
           </div>
-
           {/* BP Display */}
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">BP</h3>
@@ -249,7 +251,18 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">120/80</span>
             </div>
           </div>
-
+          <input
+            type="range"
+            min={0}
+            max={12}
+            step={1}
+            value={sensitivity}
+            onChange={(e) => {
+              const newVal = Number(e.target.value);
+              console.log("🌀 Sensitivity changed to:", newVal);
+              setSensitivity(newVal);
+            }}
+          />{" "}
           {/* Complete/Fail Buttons (for demo) */}
           <div className="flex mt-6 space-x-3">
             <Button

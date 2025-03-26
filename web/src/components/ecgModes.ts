@@ -113,7 +113,11 @@ export const generateFailureToSensePoints = ({
   const beatLength = 16;
   const numberOfBeats = 10;
 
-  const intrinsicThreshold = 2; // mV needed to detect intrinsic beat
+  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(val, max));
+
+  // Gradual scoring: sensitivity of 5 = bad, 0 = perfect
+  const sensitivityScore = clamp((2.5 - sensitivity) / 2.5, 0, 1); // 0–1
+  const effectiveness = sensitivityScore;
 
   for (let i = 0; i < numberOfBeats; i++) {
     const offset = i * beatLength;
@@ -123,11 +127,11 @@ export const generateFailureToSensePoints = ({
     points.push({ x: offset + 7, y: 1.2 });
     points.push({ x: offset + 8, y: -0.3 });
 
-    const failedToSense = sensitivity > intrinsicThreshold;
+    // Gradual logic: more effective → less unnecessary pacing
+    const shouldPace = Math.random() > effectiveness;
 
-    // Pacemaker fails to sense the intrinsic beat, so it fires too
-    if (failedToSense) {
-      points.push({ x: offset + 9, y: 4 }); // pacing spike AFTER QRS
+    if (shouldPace) {
+      points.push({ x: offset + 9, y: 4 }); // pacing spike
     }
 
     // Flatline everywhere else
@@ -140,6 +144,7 @@ export const generateFailureToSensePoints = ({
 
   return points;
 };
+
 
 export const generateBariatricCapturePoints = ({
   rate,
