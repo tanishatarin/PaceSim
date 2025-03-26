@@ -14,7 +14,7 @@ type ECGMode =
   | "failure_to_sense"
   | "bariatric_capture"
   | "third_degree_block"
-  | "afib"
+  | "atrial_fibrilation"
   | "second_degree_block"
   | "slow_junctional"
   | "asystole";
@@ -22,9 +22,13 @@ type ECGMode =
 export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   const { sessionHistory } = useSession();
   const { userData } = useAuth();
-  const [recentModule, setRecentModule] = useState<{id: number, title: string} | null>(null);
+  const [recentModule, setRecentModule] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
 
-  {/*  generateNormalPacingPoints,
+  {
+    /*  generateNormalPacingPoints,
   generateFailureToCapturePoints,
   generateFailureToSensePoints,
   generateBariatricCapturePoints,
@@ -32,33 +36,35 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   generateAfibPoints,
   generateSecondDegreeBlockPoints,
   generateSlowJunctionalPoints,
-  generateAsystolePoints, */}
+  generateAsystolePoints, */
+  }
 
-  
   const moduleModes: Record<number, ECGMode> = {
-    0: "normal",               // Tutorial
-    1: "normal",               // Calibration
-    2: "third_degree_block",
-    3: "afib",
-    4: "second_degree_block",
-    5: "slow_junctional",
-    6: "failure_to_sense",
-    7: "bariatric_capture",
-    8: "asystole",
+    0: "normal", // Tutorial
+    1: "normal", // Calibration
+    2: "failure_to_capture",
+    3: "failure_to_sense",
+    4: "bariatric_capture",
+    5: "third_degree_block",
+    6: "atrial_fibrilation",
+    7: "second_degree_block",
+    8: "slow_junctional",
+    9: "asystole",
   };
 
   useEffect(() => {
     // Find the most recent session
     if (sessionHistory.length > 0) {
-      const sortedSessions = [...sessionHistory].sort((a, b) => 
-        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      const sortedSessions = [...sessionHistory].sort(
+        (a, b) =>
+          new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
       );
-      
+
       const recent = sortedSessions[0];
       if (recent?.moduleId) {
         setRecentModule({
           id: parseInt(recent.moduleId),
-          title: recent.moduleName
+          title: recent.moduleName,
         });
       }
     }
@@ -66,18 +72,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
 
   const modules: Module[] = [
     { id: 1, title: "Pacemaker Calibration" },
-    { id: 2, title: "3rd Degree Block" },
-    { id: 3, title: "Atrial Fibrillation" },
-    { id: 4, title: "Slow 2nd degree block" },
-    { id: 5, title: "Slow Junctional Rhythm" },
-    { id: 6, title: "Failure to sense" },
-    { id: 7, title: "Bariatric capture" },
-    { id: 8, title: "Asystole" },
+    { id: 2, title: "Failure to Capture" },
+    { id: 3, title: "Failure To Sense" },
+    { id: 4, title: "Batriatic Capture" },
+    { id: 5, title: "Third Degree Block" },
+    { id: 6, title: "Atrial Fibrilation" },
+    { id: 7, title: "Second Degree Block" },
+    { id: 8, title: "Slow Junctional Rythm" },
+    { id: 9, title: "Asystole" },
   ];
 
   // Get completed/in-progress modules from user data
-  const completedModuleIds = userData?.stats?.completedModules?.map(id => parseInt(id)) || [];
-  const inProgressModuleIds = userData?.stats?.inProgressModules?.map(id => parseInt(id)) || [];
+  const completedModuleIds =
+    userData?.stats?.completedModules?.map((id) => parseInt(id)) || [];
+  const inProgressModuleIds =
+    userData?.stats?.inProgressModules?.map((id) => parseInt(id)) || [];
 
   return (
     <Card className="w-full p-8 bg-white shadow-lg rounded-3xl">
@@ -99,9 +108,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
             className="p-4 transition-colors duration-200 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200"
             onClick={() => onModuleSelect(recentModule.id)}
           >
-            <p className="font-medium text-blue-800">
-              {recentModule.title}
-            </p>
+            <p className="font-medium text-blue-800">{recentModule.title}</p>
             <p className="mt-1 text-sm text-blue-600">
               Continue where you left off
             </p>
@@ -128,7 +135,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
             <div
               key={module.id}
               className={`p-4 transition-colors duration-200 rounded-lg cursor-pointer ${
-                completedModuleIds.includes(module.id) 
+                completedModuleIds.includes(module.id)
                   ? "bg-green-100 hover:bg-green-200"
                   : inProgressModuleIds.includes(module.id)
                     ? "bg-yellow-100 hover:bg-yellow-200"
@@ -141,10 +148,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
                   Module {module.id}: {module.title}
                 </p>
                 {completedModuleIds.includes(module.id) && (
-                  <span className="text-sm font-medium text-green-600">✓ Completed</span>
+                  <span className="text-sm font-medium text-green-600">
+                    ✓ Completed
+                  </span>
                 )}
                 {inProgressModuleIds.includes(module.id) && (
-                  <span className="text-sm font-medium text-yellow-600">In Progress</span>
+                  <span className="text-sm font-medium text-yellow-600">
+                    In Progress
+                  </span>
                 )}
               </div>
             </div>

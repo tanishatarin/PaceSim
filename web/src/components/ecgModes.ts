@@ -1,17 +1,17 @@
 export type Point = { x: number; y: number };
 
 type ECGParams = {
-  rate: number;         // pacing rate in bpm
-  aOutput: number;      // atrial output strength (mA)
-  vOutput: number;      // ventricular output strength (mA)
-  sensitivity: number;  // sensing threshold (mV)
+  rate: number; // pacing rate in bpm
+  aOutput: number; // atrial output strength (mA)
+  vOutput: number; // ventricular output strength (mA)
+  sensitivity: number; // sensing threshold (mV)
 };
 
 export const generateNormalPacingPoints = ({
   rate,
   aOutput,
   vOutput,
-  sensitivity
+  sensitivity,
 }: ECGParams): Point[] => {
   const points: Point[] = [];
   const baseComplexLength = 16;
@@ -19,12 +19,12 @@ export const generateNormalPacingPoints = ({
 
   const baseComplex: Point[] = [
     { x: 0, y: 0 },
-    { x: 1, y: 0.1 },  // P wave start
+    { x: 1, y: 0.1 }, // P wave start
     { x: 2, y: 0.25 },
     { x: 3, y: 0.1 },
-    { x: 4, y: 0 },    // PR segment
+    { x: 4, y: 0 }, // PR segment
     { x: 5, y: -0.2 }, // Q wave
-    { x: 6, y: 1.5 },  // R wave
+    { x: 6, y: 1.5 }, // R wave
     { x: 7, y: -0.4 }, // S wave
     { x: 8, y: -0.1 }, // ST segment
     { x: 9, y: 0 },
@@ -186,7 +186,7 @@ export const generateThirdDegreeBlockPoints = ({
   const points: Point[] = [];
   const totalLength = 160;
 
-  const atrialInterval = 20;      // P wave every 20 samples
+  const atrialInterval = 20; // P wave every 20 samples
   const ventricularInterval = 32; // QRS every 32 samples
 
   const pAmp = 0.3 * Math.min(1, aOutput / 5);
@@ -231,7 +231,10 @@ export const generateAfibPoints = ({
     let y = (Math.random() - 0.5) * 0.6; // chaotic baseline
 
     // Irregularly spaced QRS
-    if (i - lastQRS >= Math.floor(Math.random() * (maxInterval - minInterval)) + minInterval) {
+    if (
+      i - lastQRS >=
+      Math.floor(Math.random() * (maxInterval - minInterval)) + minInterval
+    ) {
       y += 1.2 * Math.min(1, vOutput / 5); // ventricular spike (irregular timing)
       lastQRS = i;
     }
@@ -332,4 +335,3 @@ export const generateAsystolePoints = ({
 
   return points;
 };
-

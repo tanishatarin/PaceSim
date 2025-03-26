@@ -37,12 +37,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     | "failure_to_sense"
     | "bariatric_capture"
     | "third_degree_block"
-    | "afib"
+    | "atrial_fibrilation"
     | "second_degree_block"
     | "slow_junctional"
     | "asystole";
 
-    {/*  generateNormalPacingPoints,
+  {
+    /*  generateNormalPacingPoints,
   generateFailureToCapturePoints,
   generateFailureToSensePoints,
   generateBariatricCapturePoints,
@@ -50,19 +51,20 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   generateAfibPoints,
   generateSecondDegreeBlockPoints,
   generateSlowJunctionalPoints,
-  generateAsystolePoints, */}
+  generateAsystolePoints, */
+  }
 
-  
   const moduleModes: Record<number, ECGMode> = {
     0: "normal", // Tutorial
     1: "normal", // Calibration
-    2: "third_degree_block",
-    3: "afib",
-    4: "second_degree_block",
-    5: "slow_junctional",
-    6: "failure_to_sense",
-    7: "bariatric_capture",
-    8: "asystole",
+    2: "failure_to_capture",
+    3: "failure_to_sense",
+    4: "bariatric_capture",
+    5: "third_degree_block",
+    6: "atrial_fibrilation",
+    7: "second_degree_block",
+    8: "slow_junctional",
+    9: "asystole",
   };
 
   const moduleSettings: Record<
@@ -71,15 +73,15 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   > = {
     0: { rate: 80, aOutput: 5, vOutput: 5, sensitivity: 2 },
     1: { rate: 100, aOutput: 6, vOutput: 8, sensitivity: 2 },
-    2: { rate: 60, aOutput: 3, vOutput: 5, sensitivity: 3 },
-    3: { rate: 90, aOutput: 0, vOutput: 5, sensitivity: 2 },
-    4: { rate: 70, aOutput: 5, vOutput: 5, sensitivity: 2 },
-    5: { rate: 50, aOutput: 0, vOutput: 3, sensitivity: 2 },
-    6: { rate: 80, aOutput: 3, vOutput: 5, sensitivity: 5 },
-    7: { rate: 100, aOutput: 4, vOutput: 11, sensitivity: 2 },
-    8: { rate: 90, aOutput: 0, vOutput: 6, sensitivity: 2 },
+    2: { rate: 100, aOutput: 6, vOutput: 8, sensitivity: 2 },
+    3: { rate: 80, aOutput: 3, vOutput: 5, sensitivity: 5 },
+    4: { rate: 100, aOutput: 4, vOutput: 11, sensitivity: 2 },
+    5: { rate: 60, aOutput: 3, vOutput: 5, sensitivity: 3 },
+    6: { rate: 90, aOutput: 0, vOutput: 5, sensitivity: 2 },
+    7: { rate: 70, aOutput: 5, vOutput: 5, sensitivity: 2 },
+    8: { rate: 50, aOutput: 0, vOutput: 3, sensitivity: 2 },
+    9: { rate: 90, aOutput: 0, vOutput: 6, sensitivity: 2 },
   };
-
   const settings = moduleSettings[moduleId] ?? {
     rate: 80,
     aOutput: 5,
@@ -285,15 +287,16 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 // Helper functions to get module information
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {
-    0: "Tutorial",
-    1: "Pacemaker Calibration",
-    2: "3rd Degree Block",
-    3: "Atrial Fibrillation",
-    4: "Slow 2nd degree block",
-    5: "Slow Junctional Rhythm",
-    6: "Failure to sense",
-    7: "Bariatric capture",
-    8: "Asystole",
+    0: "Tutorial", // Tutorial
+    1: "Pacemaker Calibration", // Calibration
+    2: "Failure to Capture",
+    3: "Failure to Sense",
+    4: "Bariatric Capture",
+    5: "Third Degree Block",
+    6: "Atrial Fibrilation",
+    7: "Second Degree Block",
+    8: "Slow Junctional Rythm",
+    9: "Asystole",
   };
 
   return titles[moduleId] || "Unknown Module";
@@ -303,13 +306,14 @@ function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     0: "Learn how to use the simulator and its controls",
     1: "Conduct a Routine Temporary External Pacemaker Calibration",
-    2: "Identify and treat a 3rd Degree AV Block",
-    3: "Manage a patient with Atrial Fibrillation",
-    4: "Identify and treat a Slow 2nd Degree AV Block",
-    5: "Manage a patient with Slow Junctional Rhythm",
-    6: "Diagnose and correct a failure to sense condition",
-    7: "Correct inadequate capture thresholds",
-    8: "Intervene in a case of Asystole",
+    2: "Correct inadequate capture thresholds",
+    3: "Diagnose and correct a failure to sense condition",
+    4: "Correct a bariatric capture",
+    5: "Identify and treat a 3rd Degree AV Block",
+    6: "Manage a patient with Atrial Fibrillation",
+    7: "Identify and treat a Slow 2nd Degree AV Block",
+    8: "Manage a patient with Slow Junctional Rhythm",
+    9: "Intervene in a case of Asystole",
   };
 
   return objectives[moduleId] || "Complete the module tasks";

@@ -316,7 +316,7 @@ interface ECGVisualizerProps {
     | "failure_to_sense"
     | "bariatric_capture"
     | "third_degree_block"
-    | "afib"
+    | "atrial_fibrilation"
     | "second_degree_block"
     | "slow_junctional"
     | "asystole";
@@ -404,7 +404,7 @@ const ECGVisualizer = ({
           vOutput,
           sensitivity,
         });
-      case "afib":
+      case "atrial_fibrilation":
         return generateAfibPoints({ rate, aOutput, vOutput, sensitivity });
       case "second_degree_block":
         return generateSecondDegreeBlockPoints({
