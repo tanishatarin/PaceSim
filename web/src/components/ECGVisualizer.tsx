@@ -42,7 +42,7 @@
 //   const generatePoints = () => {
 //     const points: { x: number; y: number }[] = [];
 //     const numberOfComplexes = 10;
-    
+
 //     // Calculate non-linear scaling factors
 //     const aScale = calculateNonLinearScale(aOutput, 1); // Max 1mV for atrial
 //     const vScale = calculateNonLinearScale(vOutput, 5); // Max 5mV for ventricle
@@ -50,12 +50,12 @@
 //     for (let i = 0; i < numberOfComplexes; i++) {
 //       baseComplex.forEach((point) => {
 //         let scaledY = point.y;
-        
+
 //         // Scale P wave based on aOutput (atrial component)
 //         if (point.x % baseComplex.length >= 1 && point.x % baseComplex.length <= 3) {
 //           scaledY = point.y * aScale;
 //         }
-        
+
 //         // Scale QRS complex based on vOutput (ventricular component)
 //         if (point.x % baseComplex.length >= 5 && point.x % baseComplex.length <= 7) {
 //           scaledY = point.y * vScale;
@@ -103,17 +103,17 @@
 //           data={data}
 //           margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
 //         >
-//           <CartesianGrid 
-//             strokeDasharray="3 3" 
+//           <CartesianGrid
+//             strokeDasharray="3 3"
 //             stroke="#333333"
 //           />
 //           <XAxis
 //             dataKey="x"
 //             stroke="#666666"
 //             tick={{ fill: '#666666' }}
-//             label={{ 
-//               value: "Time (milliseconds)", 
-//               position: "bottom", 
+//             label={{
+//               value: "Time (milliseconds)",
+//               position: "bottom",
 //               fill: "#666666",
 //               dy: 20
 //             }}
@@ -122,9 +122,9 @@
 //             domain={[-2, 5]} // Adjusted to physiological range
 //             stroke="#666666"
 //             tick={{ fill: '#666666' }}
-//             label={{ 
-//               value: "Amplitude (mV)", 
-//               angle: -90, 
+//             label={{
+//               value: "Amplitude (mV)",
+//               angle: -90,
 //               position: "left",
 //               fill: "#666666",
 //               dx: -30
@@ -191,7 +191,7 @@
 //   const generatePoints = () => {
 //     const points: { x: number; y: number }[] = [];
 //     const numberOfComplexes = 10;
-    
+
 //     // Calculate non-linear scaling factors
 //     const aScale = calculateNonLinearScale(aOutput, 1); // Max 1mV for atrial
 //     const vScale = calculateNonLinearScale(vOutput, 5); // Max 5mV for ventricle
@@ -199,12 +199,12 @@
 //     for (let i = 0; i < numberOfComplexes; i++) {
 //       baseComplex.forEach((point) => {
 //         let scaledY = point.y;
-        
+
 //         // Scale P wave based on aOutput (atrial component)
 //         if (point.x % baseComplex.length >= 1 && point.x % baseComplex.length <= 3) {
 //           scaledY = point.y * aScale;
 //         }
-        
+
 //         // Scale QRS complex based on vOutput (ventricular component)
 //         if (point.x % baseComplex.length >= 5 && point.x % baseComplex.length <= 7) {
 //           scaledY = point.y * vScale;
@@ -252,7 +252,7 @@
 //           data={data}
 //           margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
 //         >
-//           <CartesianGrid 
+//           <CartesianGrid
 //             strokeDasharray="0" // Remove grid lines
 //             stroke="#333333"
 //           />
@@ -310,11 +310,20 @@ interface ECGVisualizerProps {
   aOutput?: number;
   vOutput?: number;
   sensitivity?: number;
-  mode?: "normal" | "failure_to_capture" | "failure_to_sense" | "bariatric_capture" |
-   "third_degree_block" | "afib" | "second_degree_block" | "slow_junctional" | "asystole"
+  mode?:
+    | "normal"
+    | "failure_to_capture"
+    | "failure_to_sense"
+    | "bariatric_capture"
+    | "third_degree_block"
+    | "afib"
+    | "second_degree_block"
+    | "slow_junctional"
+    | "asystole";
 }
 
-{/*  generateNormalPacingPoints,
+{
+  /*  generateNormalPacingPoints,
   generateFailureToCapturePoints,
   generateFailureToSensePoints,
   generateBariatricCapturePoints,
@@ -322,7 +331,8 @@ interface ECGVisualizerProps {
   generateAfibPoints,
   generateSecondDegreeBlockPoints,
   generateSlowJunctionalPoints,
-  generateAsystolePoints, */}
+  generateAsystolePoints, */
+}
 
 const ECGVisualizer = ({
   rate = 150,
@@ -330,7 +340,8 @@ const ECGVisualizer = ({
   vOutput = 5,
   sensitivity = 1,
   mode = "normal",
-}: ECGVisualizerProps) => {  type Point = { x: number; y: number };
+}: ECGVisualizerProps) => {
+  type Point = { x: number; y: number };
 
   const [data, setData] = useState<Point[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -356,41 +367,76 @@ const ECGVisualizer = ({
   ];
 
   // Non-linear scaling function to simulate physiological response
-  {/*const calculateNonLinearScale = (output : number, maxResponse = 5) => {
+  {
+    /*const calculateNonLinearScale = (output : number, maxResponse = 5) => {
     return Math.min(maxResponse, Math.log(output + 1) / Math.log(6));
-  };*/}
+  };*/
+  }
 
   // Generate multiple complexes with amplitude adjustments
   const generatePoints = (): Point[] => {
     switch (mode) {
       case "failure_to_capture":
-        return generateFailureToCapturePoints({ rate, aOutput, vOutput, sensitivity });
+        return generateFailureToCapturePoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "failure_to_sense":
-        return generateFailureToSensePoints({ rate, aOutput, vOutput, sensitivity });
+        return generateFailureToSensePoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "bariatric_capture":
-        return generateBariatricCapturePoints({ rate, aOutput, vOutput, sensitivity });
+        return generateBariatricCapturePoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "third_degree_block":
-        return generateThirdDegreeBlockPoints({ rate, aOutput, vOutput, sensitivity });
+        return generateThirdDegreeBlockPoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "afib":
         return generateAfibPoints({ rate, aOutput, vOutput, sensitivity });
       case "second_degree_block":
-        return generateSecondDegreeBlockPoints({ rate, aOutput, vOutput, sensitivity });
+        return generateSecondDegreeBlockPoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "slow_junctional":
-        return generateSlowJunctionalPoints({ rate, aOutput, vOutput, sensitivity });
+        return generateSlowJunctionalPoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
       case "asystole":
         return generateAsystolePoints({ rate, aOutput, vOutput, sensitivity });
       default:
-        return generateNormalPacingPoints({ rate, aOutput, vOutput, sensitivity })
-        ;
+        return generateNormalPacingPoints({
+          rate,
+          aOutput,
+          vOutput,
+          sensitivity,
+        });
     }
   };
-  
 
   useEffect(() => {
     const points = generatePoints();
     setData(points.slice(0, 100));
 
-    const updateInterval = (60000 / rate) / baseComplex.length;
+    const updateInterval = 60000 / rate / baseComplex.length;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -410,6 +456,7 @@ const ECGVisualizer = ({
     <div className="w-full h-64 overflow-hidden bg-black rounded-lg">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
+          key={`${rate}-${aOutput}-${vOutput}-${sensitivity}-${mode}`}
           data={data}
           margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
         >

@@ -24,6 +24,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   const { userData } = useAuth();
   const [recentModule, setRecentModule] = useState<{id: number, title: string} | null>(null);
 
+  {/*  generateNormalPacingPoints,
+  generateFailureToCapturePoints,
+  generateFailureToSensePoints,
+  generateBariatricCapturePoints,
+  generateThirdDegreeBlockPoints,
+  generateAfibPoints,
+  generateSecondDegreeBlockPoints,
+  generateSlowJunctionalPoints,
+  generateAsystolePoints, */}
+
+  
   const moduleModes: Record<number, ECGMode> = {
     0: "normal",               // Tutorial
     1: "normal",               // Calibration

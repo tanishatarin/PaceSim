@@ -180,30 +180,33 @@ export const generateBariatricCapturePoints = ({
 };
 
 export const generateThirdDegreeBlockPoints = ({
-  rate,
   aOutput,
   vOutput,
 }: ECGParams): Point[] => {
   const points: Point[] = [];
   const totalLength = 160;
 
-  const atrialInterval = 20;       // every 20 samples
-  const ventricularInterval = 32;  // every 32 samples
+  const atrialInterval = 20;      // P wave every 20 samples
+  const ventricularInterval = 32; // QRS every 32 samples
 
-  const aSpikeThreshold = 3;
-  const vSpikeThreshold = 3;
+  const pAmp = 0.3 * Math.min(1, aOutput / 5);
+  const qrsAmp = 1.2 * Math.min(1, vOutput / 5);
 
   for (let i = 0; i < totalLength; i++) {
     let y = 0;
 
-    // Atrial P wave (small positive bump)
+    // P wave: small, sharp bump
     if (i % atrialInterval === 0) {
-      y = 0.3 * Math.min(1, aOutput / aSpikeThreshold);
+      y = pAmp;
     }
 
-    // Ventricular QRS complex
+    // QRS complex: tall and wide, 3-sample shape
     if (i % ventricularInterval === 0) {
-      y = 1.2 * Math.min(1, vOutput / vSpikeThreshold);
+      points.push({ x: i, y: -0.2 });
+      points.push({ x: i + 1, y: qrsAmp });
+      points.push({ x: i + 2, y: -0.3 });
+      i += 2; // skip ahead to avoid overlap
+      continue;
     }
 
     points.push({ x: i, y });
