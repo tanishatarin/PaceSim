@@ -8,17 +8,6 @@ interface LandingPageProps {
   onModuleSelect: (moduleId: number) => void;
 }
 
-type ECGMode =
-  | "normal"
-  | "failure_to_capture"
-  | "failure_to_sense"
-  | "bariatric_capture"
-  | "third_degree_block"
-  | "atrial_fibrilation"
-  | "second_degree_block"
-  | "slow_junctional"
-  | "asystole";
-
 export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   const { sessionHistory } = useSession();
   const { userData } = useAuth();
@@ -39,7 +28,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   generateAsystolePoints, */
   }
 
-  const moduleModes: Record<number, ECGMode> = {
+  {/* OLD MODULE TRACKING
+
+  type ECGMode =
+  | "normal"
+  | "failure_to_capture"
+  | "failure_to_sense"
+  | "bariatric_capture"
+  | "third_degree_block"
+  | "atrial_fibrilation"
+  | "second_degree_block"
+  | "slow_junctional"
+  | "asystole";
+
+   const moduleModes: Record<number, ECGMode> = {
     0: "normal", // Tutorial
     1: "normal", // Calibration
     2: "failure_to_capture",
@@ -50,7 +52,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
     7: "second_degree_block",
     8: "slow_junctional",
     9: "asystole",
-  };
+  };*/}
 
   useEffect(() => {
     // Find the most recent session
@@ -84,9 +86,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
 
   // Get completed/in-progress modules from user data
   const completedModuleIds =
-    userData?.stats?.completedModules?.map((id) => parseInt(id)) || [];
+    userData?.stats?.completedModules?.map((id: string) => parseInt(id)) || [];
   const inProgressModuleIds =
-    userData?.stats?.inProgressModules?.map((id) => parseInt(id)) || [];
+    userData?.stats?.inProgressModules?.map((id: string) => parseInt(id)) || [];
 
   return (
     <Card className="w-full p-8 bg-white shadow-lg rounded-3xl">
