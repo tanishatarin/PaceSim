@@ -300,7 +300,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 // Helper functions to get module information
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {
-    0: "Tutorial", // Tutorial
+    0: "Pacemaker Sensing", // Tutorial
     1: "Pacemaker Calibration", // Calibration
     2: "Failure to Capture",
     3: "Failure to Sense",
@@ -319,8 +319,8 @@ function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     0: "Learn how to use the simulator and its controls",
     1: "Conduct a Routine Temporary External Pacemaker Calibration",
-    2: "Correct inadequate capture thresholds",
-    3: "Diagnose and correct a failure to sense condition",
+    2: "Diagnose and correct a failure to sense condition",
+    3: "Correct inadequate capture thresholds",
     4: "Correct a bariatric capture",
     5: "Identify and treat a 3rd Degree AV Block",
     6: "Manage a patient with Atrial Fibrillation",

@@ -73,9 +73,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   }, [sessionHistory]);
 
   const modules: Module[] = [
-    { id: 1, title: "Pacemaker Calibration" },
-    { id: 2, title: "Failure to Capture" },
-    { id: 3, title: "Failure To Sense" },
+    { id: 1, title: "Intrinsic Calibration" },
+    { id: 2, title: "Failure to Sense" },
+    { id: 3, title: "Failure To Capture" },
     { id: 4, title: "Batriatic Capture" },
     { id: 5, title: "Third Degree Block" },
     { id: 6, title: "Atrial Fibrilation" },
