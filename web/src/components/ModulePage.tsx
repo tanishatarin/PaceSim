@@ -32,39 +32,21 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   };
 
   type ECGMode =
-    | "normal"
-    | "failure_to_capture"
-    | "failure_to_sense"
-    | "bariatric_capture"
-    | "third_degree_block"
-    | "atrial_fibrilation"
-    | "second_degree_block"
-    | "slow_junctional"
-    | "asystole";
+    | "initial"
+    | "sensitivity"
+    | "oversensing"
+    | "undersensing"
+    | "capture_module"
+    | "failure_to_capture";
 
-  {
-    /*  generateNormalPacingPoints,
-  generateFailureToCapturePoints,
-  generateFailureToSensePoints,
-  generateBariatricCapturePoints,
-  generateThirdDegreeBlockPoints,
-  generateAfibPoints,
-  generateSecondDegreeBlockPoints,
-  generateSlowJunctionalPoints,
-  generateAsystolePoints, */
-  }
 
   const moduleModes: Record<number, ECGMode> = {
-    0: "normal", // Tutorial
-    1: "normal", // Calibration
-    2: "failure_to_capture",
-    3: "failure_to_sense",
-    4: "bariatric_capture",
-    5: "third_degree_block",
-    6: "atrial_fibrilation",
-    7: "second_degree_block",
-    8: "slow_junctional",
-    9: "asystole",
+    1: "initial",
+    2: "sensitivity",
+    3: "oversensing",
+    4: "undersensing",
+    5: "capture_module",
+    6: "failure_to_capture",
   };
 
   const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
@@ -80,9 +62,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     4: { rate: 100, aOutput: 4, vOutput: 11, sensitivity: 2 },
     5: { rate: 60, aOutput: 3, vOutput: 5, sensitivity: 3 },
     6: { rate: 90, aOutput: 0, vOutput: 5, sensitivity: 2 },
-    7: { rate: 70, aOutput: 5, vOutput: 5, sensitivity: 2 },
-    8: { rate: 50, aOutput: 0, vOutput: 3, sensitivity: 2 },
-    9: { rate: 90, aOutput: 0, vOutput: 6, sensitivity: 2 },
   };
   const settings = moduleSettings[moduleId] ?? {
     rate: 80,
@@ -296,20 +275,23 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     </Card>
   );
 };
-
+{/**  mode?:
+    | "initial"
+    | "sensitivity"
+    | "oversensing"
+    | "undersensing"
+    | "capture_module"
+    | "failure_to_capture";
+} */}
 // Helper functions to get module information
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {
-    0: "Pacemaker Sensing", // Tutorial
-    1: "Pacemaker Calibration", // Calibration
-    2: "Failure to Capture",
-    3: "Failure to Sense",
-    4: "Bariatric Capture",
-    5: "Third Degree Block",
-    6: "Atrial Fibrilation",
-    7: "Second Degree Block",
-    8: "Slow Junctional Rythm",
-    9: "Asystole",
+    1: "Initial Pacemaker",
+    2: "Scenario 1",
+    3: "Scenario 2",
+    4: "Scenario 3",
+    5: "Capture Module",
+    6: "Failure to Capture",
   };
 
   return titles[moduleId] || "Unknown Module";
@@ -317,16 +299,12 @@ function getModuleTitle(moduleId: number): string {
 
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
-    0: "Learn how to use the simulator and its controls",
-    1: "Conduct a Routine Temporary External Pacemaker Calibration",
+    1: "Initial external pacemaker calibration: intrinsic ECG",
     2: "Diagnose and correct a failure to sense condition",
-    3: "Correct inadequate capture thresholds",
-    4: "Correct a bariatric capture",
-    5: "Identify and treat a 3rd Degree AV Block",
-    6: "Manage a patient with Atrial Fibrillation",
-    7: "Identify and treat a Slow 2nd Degree AV Block",
-    8: "Manage a patient with Slow Junctional Rhythm",
-    9: "Intervene in a case of Asystole",
+    3: "Diagnose and correct scenario",
+    4: "Diagnose and correct scenario",
+    5: "Learn to correctly capture",
+    6: "Correct a failure to capture",
   };
 
   return objectives[moduleId] || "Complete the module tasks";

@@ -16,44 +16,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
     title: string;
   } | null>(null);
 
-  {
-    /*  generateNormalPacingPoints,
-  generateFailureToCapturePoints,
-  generateFailureToSensePoints,
-  generateBariatricCapturePoints,
-  generateThirdDegreeBlockPoints,
-  generateAfibPoints,
-  generateSecondDegreeBlockPoints,
-  generateSlowJunctionalPoints,
-  generateAsystolePoints, */
-  }
-
-  {/* OLD MODULE TRACKING
-
-  type ECGMode =
-  | "normal"
-  | "failure_to_capture"
-  | "failure_to_sense"
-  | "bariatric_capture"
-  | "third_degree_block"
-  | "atrial_fibrilation"
-  | "second_degree_block"
-  | "slow_junctional"
-  | "asystole";
-
-   const moduleModes: Record<number, ECGMode> = {
-    0: "normal", // Tutorial
-    1: "normal", // Calibration
-    2: "failure_to_capture",
-    3: "failure_to_sense",
-    4: "bariatric_capture",
-    5: "third_degree_block",
-    6: "atrial_fibrilation",
-    7: "second_degree_block",
-    8: "slow_junctional",
-    9: "asystole",
-  };*/}
-
   useEffect(() => {
     // Find the most recent session
     if (sessionHistory.length > 0) {
@@ -73,15 +35,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
   }, [sessionHistory]);
 
   const modules: Module[] = [
-    { id: 1, title: "Calibration and Initial Info" },
+    { id: 1, title: "Initial Info" },
     { id: 2, title: "Sensitivity & ECG Identification" },
-    { id: 3, title: "Scenario Calibration" },
-    { id: 4, title: "Batriatic Capture" },
-    { id: 5, title: "Third Degree Block" },
-    { id: 6, title: "Atrial Fibrilation" },
-    { id: 7, title: "Second Degree Block" },
-    { id: 8, title: "Slow Junctional Rythm" },
-    { id: 9, title: "Asystole" },
+    { id: 3, title: "Scenario 1" },
+    { id: 4, title: "Scenario 2" },
+    { id: 5, title: "Capture Calibration" },
+    { id: 6, title: "Failure to Capture" },
   ];
 
   // Get completed/in-progress modules from user data
@@ -122,7 +81,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
       <div>
         <h2 className="mb-4 text-xl font-semibold">Modules:</h2>
         <div className="space-y-3">
-          {/* Tutorial Module */}
+          {/** Training Module
           <div
             className="p-4 bg-[#F0F6FE] hover:bg-blue-100 transition-colors duration-200 rounded-lg cursor-pointer"
             onClick={() => onModuleSelect(0)}
@@ -130,7 +89,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onModuleSelect }) => {
             <p className="font-medium text-gray-900">
               Tutorial: Get to know how to play!
             </p>
-          </div>
+          </div> */}
 
           {/* Training Modules */}
           {modules.map((module) => (

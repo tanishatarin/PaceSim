@@ -15,20 +15,21 @@ export const generateNormalPacingPoints = ({
 }: ECGParams): Point[] => {
   const points: Point[] = [];
   const baseComplexLength = 16;
-  const numberOfComplexes = 10;
+  const numberOfComplexes = 6; // Match image length
+  const complexSpacing = 45; // Add gap between each beat to reach ~1.8 sec interval
 
   const baseComplex: Point[] = [
     { x: 0, y: 0 },
-    { x: 1, y: 0.1 }, // P wave start
+    { x: 1, y: 0.1 },  // P wave
     { x: 2, y: 0.25 },
     { x: 3, y: 0.1 },
-    { x: 4, y: 0 }, // PR segment
-    { x: 5, y: -0.2 }, // Q wave
-    { x: 6, y: 1.5 }, // R wave
-    { x: 7, y: -0.4 }, // S wave
-    { x: 8, y: -0.1 }, // ST segment
+    { x: 4, y: 0 },    // PR segment
+    { x: 5, y: -0.2 }, // Q
+    { x: 6, y: 1.5 },  // R
+    { x: 7, y: -0.4 }, // S
+    { x: 8, y: -0.1 }, // ST
     { x: 9, y: 0 },
-    { x: 10, y: 0.1 }, // T wave start
+    { x: 10, y: 0.1 }, // T wave
     { x: 11, y: 0.4 },
     { x: 12, y: 0.1 },
     { x: 13, y: 0 },
@@ -44,12 +45,18 @@ export const generateNormalPacingPoints = ({
   const vScale = scaleOutput(vOutput, 5);
 
   for (let i = 0; i < numberOfComplexes; i++) {
-    const offset = i * baseComplexLength;
+    const offset = i * complexSpacing;
 
-    // Add pacing spike before QRS
-    points.push({ x: offset + 4, y: 4 });
+    // Simulate appropriate sensing: pace only some beats
+    const isPaced = i % 2 === 0; // Alternate: paced, intrinsic, paced, ...
 
-    baseComplex.forEach((pt) => {
+    if (isPaced) {
+      // Pacing spike before QRS
+      points.push({ x: offset + 4, y: 4 }); // spike
+      points.push({ x: offset + 4.1, y: 0 }); // return to baseline
+    }
+
+    for (const pt of baseComplex) {
       let scaledY = pt.y;
 
       if (pt.x >= 1 && pt.x <= 3) {
@@ -64,46 +71,15 @@ export const generateNormalPacingPoints = ({
         x: offset + pt.x,
         y: scaledY,
       });
-    });
-  }
-
-  return points;
-};
-
-export const generateFailureToCapturePoints = ({
-  rate,
-  aOutput,
-  vOutput,
-  sensitivity,
-}: ECGParams): Point[] => {
-  const points: Point[] = [];
-  const beatLength = 16;
-  const numberOfBeats = 10;
-
-  // Still show spikes at pacing interval, but no QRS
-  for (let i = 0; i < numberOfBeats; i++) {
-    const offset = i * beatLength;
-
-    // Atrial spike (optional based on aOutput)
-    if (aOutput > 0) {
-      points.push({ x: offset + 2, y: 4 });
-    }
-
-    // Ventricular spike
-    points.push({ x: offset + 5, y: 4 });
-
-    // No capture: flatline despite spike
-    for (let j = 0; j < beatLength; j++) {
-      if (j !== 2 && j !== 5) {
-        points.push({ x: offset + j, y: 0 });
-      }
     }
   }
 
   return points;
 };
 
-export const generateFailureToSensePoints = ({
+
+
+export const generateSensitivtyPoints = ({
   rate,
   aOutput,
   vOutput,
@@ -145,8 +121,7 @@ export const generateFailureToSensePoints = ({
   return points;
 };
 
-
-export const generateBariatricCapturePoints = ({
+export const generateOversensingPoints = ({
   rate,
   aOutput,
   vOutput,
@@ -184,7 +159,7 @@ export const generateBariatricCapturePoints = ({
   return points;
 };
 
-export const generateThirdDegreeBlockPoints = ({
+export const generateUndersensingPoints = ({
   aOutput,
   vOutput,
 }: ECGParams): Point[] => {
@@ -220,7 +195,7 @@ export const generateThirdDegreeBlockPoints = ({
   return points;
 };
 
-export const generateAfibPoints = ({
+export const generateCaptureModulePoints = ({
   rate,
   aOutput,
   vOutput,
@@ -250,6 +225,39 @@ export const generateAfibPoints = ({
   return points;
 };
 
+export const generateFailureToCapturePoints = ({
+  rate,
+  aOutput,
+  vOutput,
+  sensitivity,
+}: ECGParams): Point[] => {
+  const points: Point[] = [];
+  const beatLength = 16;
+  const numberOfBeats = 10;
+
+  // Still show spikes at pacing interval, but no QRS
+  for (let i = 0; i < numberOfBeats; i++) {
+    const offset = i * beatLength;
+
+    // Atrial spike (optional based on aOutput)
+    if (aOutput > 0) {
+      points.push({ x: offset + 2, y: 4 });
+    }
+
+    // Ventricular spike
+    points.push({ x: offset + 5, y: 4 });
+
+    // No capture: flatline despite spike
+    for (let j = 0; j < beatLength; j++) {
+      if (j !== 2 && j !== 5) {
+        points.push({ x: offset + j, y: 0 });
+      }
+    }
+  }
+
+  return points;
+};
+{/**
 export const generateSecondDegreeBlockPoints = ({
   rate,
   aOutput,
@@ -340,3 +348,4 @@ export const generateAsystolePoints = ({
 
   return points;
 };
+*/}
