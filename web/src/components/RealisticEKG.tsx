@@ -16,7 +16,7 @@ const RealisticEKG = ({ rate, aOutput, vOutput }) => {
   };
 
   // Generate single heartbeat waveform
-  const generateBeat = (time) => {
+  const generateBeat = (time: number) => {
     const { pDuration, prInterval, qrsDuration } = calculateIntervals();
 
     // Scale amplitudes based on outputs
@@ -94,7 +94,7 @@ const RealisticEKG = ({ rate, aOutput, vOutput }) => {
   }, [rate, aOutput, vOutput]);
 
   return (
-    <div className="w-full h-96 bg-white rounded-xl p-4">
+    <div className="w-full p-4 bg-white h-96 rounded-xl">
       <ResponsiveContainer>
         <LineChart data={data}>
           <XAxis
