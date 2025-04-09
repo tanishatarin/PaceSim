@@ -7,6 +7,18 @@ type ECGParams = {
   sensitivity: number; // sensing threshold (mV)
 };
 
+const lerp = (start: Point, end: Point, steps: number): Point[] => {
+  const pts: Point[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    pts.push({
+      x: start.x + (end.x - start.x) * t,
+      y: start.y + (end.y - start.y) * t,
+    });
+  }
+  return pts;
+};
+
 export const generateNormalPacingPoints = ({
   rate,
   aOutput,
@@ -20,22 +32,18 @@ export const generateNormalPacingPoints = ({
 
   const baseComplex: Point[] = [
     { x: 0, y: 0 },
-    { x: 1, y: 0.1 },  // P wave
-    { x: 2, y: 0.25 },
-    { x: 3, y: 0.1 },
-    { x: 4, y: 0 },    // PR segment
-    { x: 5, y: -0.2 }, // Q
-    { x: 6, y: 1.5 },  // R
-    { x: 7, y: -0.4 }, // S
-    { x: 8, y: -0.1 }, // ST
-    { x: 9, y: 0 },
-    { x: 10, y: 0.1 }, // T wave
-    { x: 11, y: 0.4 },
-    { x: 12, y: 0.1 },
-    { x: 13, y: 0 },
+    ...lerp({ x: 1, y: 0.1 }, { x: 3, y: 0.25 }, 5),  // smoother P wave
+    ...lerp({ x: 3, y: 0.25 }, { x: 4, y: 0 }, 3),    // PR segment
+    ...lerp({ x: 4, y: 0 }, { x: 5, y: -0.2 }, 3),    // Q wave
+    ...lerp({ x: 5, y: -0.2 }, { x: 6, y: 1.5 }, 3),  // R
+    ...lerp({ x: 6, y: 1.5 }, { x: 7, y: -0.4 }, 3),  // S
+    ...lerp({ x: 7, y: -0.4 }, { x: 9, y: 0 }, 6),    // ST
+    ...lerp({ x: 9, y: 0 }, { x: 11, y: 0.4 }, 5),    // T
+    ...lerp({ x: 11, y: 0.4 }, { x: 13, y: 0 }, 5),   // End of T wave
     { x: 14, y: 0 },
     { x: 15, y: 0 },
   ];
+  
 
   // Output scaling
   const scaleOutput = (output: number, max = 5) =>
@@ -76,8 +84,6 @@ export const generateNormalPacingPoints = ({
 
   return points;
 };
-
-
 
 export const generateSensitivtyPoints = ({
   rate,
