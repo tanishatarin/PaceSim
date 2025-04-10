@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ECGVisualizer from "@/components/ECGVisualizer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/contexts/SessionContext";
+import MultipleChoiceQuiz from "./multipleChoiceQuiz";
 
 interface ModulePageProps {
   moduleId: number;
@@ -196,6 +197,11 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               mode={mode}
             />{" "}
           </div>
+          <MultipleChoiceQuiz moduleId={moduleId} onComplete={(passed) => {
+  console.log("Quiz complete. Passed?", passed);
+  if (passed) handleComplete(true); // or unlock the next step
+}} />
+
         </div>
 
         {/* Right Section (1 column) */}
