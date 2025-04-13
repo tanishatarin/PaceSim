@@ -6,6 +6,7 @@ import ECGVisualizer from "@/components/ECGVisualizer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/contexts/SessionContext";
 import MultipleChoiceQuiz from "./multipleChoiceQuiz";
+import { usePacemakerData } from "@/hooks/usePacemakerData";
 
 interface ModulePageProps {
   moduleId: number;
@@ -13,7 +14,13 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
-  const [sensorStates] = useState({
+  // Connect to pacemaker data
+  const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData(
+    'ws://raspberrypi.local:5001',  // Update this to your actual server URL if needed
+    'secondary_app_token_456'       // Authentication token
+  );
+
+  const [sensorStates, setSensorStates] = useState({
     left: true,
     right: true,
   });
@@ -40,7 +47,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     | "capture_module"
     | "failure_to_capture";
 
-
   const moduleModes: Record<number, ECGMode> = {
     1: "initial",
     2: "sensitivity",
@@ -52,33 +58,26 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
 
-  const moduleSettings: Record<
-    number,
-    { rate: number; aOutput: number; vOutput: number; sensitivity: number }
-  > = {
-    0: { rate: 80, aOutput: 5, vOutput: 5, sensitivity: 2 },
-    1: { rate: 100, aOutput: 6, vOutput: 8, sensitivity: 2 },
-    2: { rate: 100, aOutput: 6, vOutput: 8, sensitivity: 2 },
-    3: { rate: 80, aOutput: 3, vOutput: 5, sensitivity: 5 },
-    4: { rate: 100, aOutput: 4, vOutput: 11, sensitivity: 2 },
-    5: { rate: 60, aOutput: 3, vOutput: 5, sensitivity: 3 },
-    6: { rate: 90, aOutput: 0, vOutput: 5, sensitivity: 2 },
-  };
-  const settings = moduleSettings[moduleId] ?? {
-    rate: 80,
+  // We prefer actual hardware data, but fall back to reasonable defaults for display purposes
+  // This ensures users can still see the ECG visualization while connecting
+  const fallbackValues = {
+    rate: 60,
     aOutput: 5,
     vOutput: 5,
-    sensitivity: 2,
+    vSensitivity: 2
   };
-
-  const [rate, setRate] = useState(moduleSettings[moduleId].rate);
-  const [aOutput, setAOutput] = useState(moduleSettings[moduleId].aOutput);
-  const [vOutput, setVOutput] = useState(moduleSettings[moduleId].vOutput);
-  const [sensitivity, setSensitivity] = useState(
-    moduleSettings[moduleId].sensitivity,
-  );
-
-  //const mode = moduleModes[moduleId] ?? "normal";
+  
+  // Use actual hardware data when available, fall back to defaults when not connected
+  const rate = pacemakerState?.rate ?? fallbackValues.rate;
+  const aOutput = pacemakerState?.a_output ?? fallbackValues.aOutput;
+  const vOutput = pacemakerState?.v_output ?? fallbackValues.vOutput;
+  
+  // Choose the appropriate sensitivity based on the module
+  // For modules that deal with ventricular sensitivity (like VVI mode)
+  const sensitivity = pacemakerState?.vSensitivity ?? fallbackValues.vSensitivity;
+  
+  // Connection status indicator
+  const connectionStatus = isConnected ? "Connected to Pacemaker" : "Connecting to Pacemaker...";
 
   // Start tracking time when the module is loaded
   useEffect(() => {
@@ -92,6 +91,25 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
       }
     };
   }, []);
+
+  // Update sensor states based on pacemaker data
+  useEffect(() => {
+    if (pacemakerState) {
+      // Here we're interpreting certain pacemaker states to update the sensing lights
+      // This is a simple example - adjust the logic based on your actual requirements
+      
+      // Example: Left light (atrial sensing) is on when a_output > 0 and aSensitivity > 0
+      const leftOn = (pacemakerState.a_output > 0) && (pacemakerState.aSensitivity > 0);
+      
+      // Example: Right light (ventricular sensing) is on when v_output > 0 and vSensitivity > 0
+      const rightOn = (pacemakerState.v_output > 0) && (pacemakerState.vSensitivity > 0);
+      
+      setSensorStates({
+        left: leftOn,
+        right: rightOn
+      });
+    }
+  }, [pacemakerState]);
 
   const handleComplete = (success: boolean) => {
     setIsSuccess(success);
@@ -108,6 +126,31 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
     onBack();
   };
+
+  // Handle sensitivity slider change
+  const handleSensitivityChange = (newValue: number) => {
+    console.log("🌀 Sensitivity changed to:", newValue);
+    
+    // Send the updated sensitivity to the pacemaker
+    // For most modules, this will be ventricular sensitivity
+    if (moduleId === 6) {
+      // If this is a DDD mode module, potentially update both sensitivities
+      // or consult with your team on exactly which sensitivity to control
+      sendControlUpdate({ vSensitivity: newValue });
+    } else if (moduleId === 4) {
+      // For AAI mode module
+      sendControlUpdate({ aSensitivity: newValue });
+    } else {
+      // Default behavior - update ventricular sensitivity
+      sendControlUpdate({ vSensitivity: newValue });
+    }
+  };
+
+  // Only use the real hardware data for HR
+  const hrValue = pacemakerState?.rate;
+  // BP would typically come from a separate monitoring system in real hardware
+  // For now we'll keep this as a constant, but ideally it would come from hardware too
+  const bpValue = "120/80";
 
   // Don't show the completion popup if we're not at the end
   if (showCompletion) {
@@ -180,6 +223,11 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             <p>{moduleInfo.objective}</p>
           </div>
 
+          {/* Connection Status */}
+          <div className={`p-2 rounded-xl text-sm ${isConnected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+            {isConnected ? 'Connected to Pacemaker Hardware' : 'Connecting to Pacemaker...'}
+          </div>
+
           {/* Step Section */}
           <div className="p-2 bg-red-100 rounded-xl">
             <h3 className="font-bold text-red-900">
@@ -195,13 +243,20 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               vOutput={vOutput}
               sensitivity={sensitivity}
               mode={mode}
-            />{" "}
+            />
+            {!isConnected && (
+              <div className="mt-2 py-1 text-center text-xs bg-yellow-50 text-yellow-700 rounded-lg">
+                Simulated ECG - Connect hardware for real data
+              </div>
+            )}
           </div>
-          <MultipleChoiceQuiz moduleId={moduleId} onComplete={(passed) => {
-  console.log("Quiz complete. Passed?", passed);
-  if (passed) handleComplete(true); // or unlock the next step
-}} />
-
+          <MultipleChoiceQuiz 
+            moduleId={moduleId} 
+            onComplete={(passed) => {
+              console.log("Quiz complete. Passed?", passed);
+              if (passed) handleComplete(true); // or unlock the next step
+            }}
+          />
         </div>
 
         {/* Right Section (1 column) */}
@@ -226,29 +281,43 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">HR</h3>
             <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font">61</span>
+              <span className="text-5xl text-gray-600 font">
+                {isConnected && pacemakerState ? hrValue : 61}
+              </span>
             </div>
           </div>
           {/* BP Display */}
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">BP</h3>
             <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font">120/80</span>
+              <span className="text-5xl text-gray-600 font">{bpValue}</span>
             </div>
           </div>
-          <input
-            type="range"
-            min={0}
-            max={12}
-            step={1}
-            value={sensitivity}
-            onChange={(e) => {
-              const newVal = Number(e.target.value);
-              console.log("🌀 Sensitivity changed to:", newVal);
-              setSensitivity(newVal);
-            }}
-          />{" "}
-          {/* Complete/Fail Buttons (for demo) */}
+          
+          {/* Sensitivity Control */}
+          <div className="bg-[#F0F6FE] rounded-xl p-4">
+            <h3 className="mb-2 font-bold">Sensing Threshold</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">Less Sensitive</span>
+              <input
+                type="range"
+                min={0}
+                max={12}
+                step={1}
+                value={sensitivity || fallbackValues.vSensitivity}
+                onChange={(e) => handleSensitivityChange(Number(e.target.value))}
+                className="flex-1"
+              />
+              <span className="text-sm">More Sensitive</span>
+            </div>
+            <div className="mt-1 text-center text-sm">
+              Current value: {isConnected && sensitivity !== undefined ? 
+                `${sensitivity} mV` : 
+                `${fallbackValues.vSensitivity} mV (simulated)`}
+            </div>
+          </div>
+          
+          {/* Complete/Fail Buttons */}
           <div className="flex mt-6 space-x-3">
             <Button
               variant="outline"
@@ -281,14 +350,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     </Card>
   );
 };
-{/**  mode?:
-    | "initial"
-    | "sensitivity"
-    | "oversensing"
-    | "undersensing"
-    | "capture_module"
-    | "failure_to_capture";
-} */}
+
 // Helper functions to get module information
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {

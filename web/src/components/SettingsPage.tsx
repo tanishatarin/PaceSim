@@ -64,7 +64,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack, onLogout }) 
           </div>
 
           {/* Display Mode */}
-          <div className="flex items-center justify-between p-4">
+          {/* <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-3">
               <Monitor className="w-5 h-5 text-gray-600" />
               <span className="font-medium">Display Mode</span>
@@ -79,17 +79,17 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack, onLogout }) 
                 <SelectItem value="night">Night Mode</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {/* Application Settings */}
+      {/* Application Settings
       <div className="mb-8">
         <h3 className="mb-4 text-lg font-medium text-gray-700">
           Application Settings
         </h3>
         <div className="space-y-4">
-          {/* Sound Alerts */}
+          Sound Alerts
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-3">
               <Volume2 className="w-5 h-5 text-gray-600" />
@@ -98,7 +98,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack, onLogout }) 
             <Switch />
           </div>
 
-          {/* Notifications */}
+          Notifications
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-3">
               <Bell className="w-5 h-5 text-gray-600" />
@@ -107,7 +107,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ onBack, onLogout }) 
             <Switch />
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Help & Support */}
       <div className="mb-8">

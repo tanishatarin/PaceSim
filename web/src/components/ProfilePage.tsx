@@ -1,10 +1,10 @@
 import React from "react";
 import { ArrowLeft, User, Clock, Award, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfilePageProps {
   onBack: () => void;
-  userData?: any; // Add user data prop
 }
 
 interface Session {
@@ -13,20 +13,23 @@ interface Session {
   status: "Completed" | "In Progress";
 }
 
-export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack, userData }) => {
+export const ProfilePage: React.FC<ProfilePageProps> = ({ onBack }) => {
+  // Get user data from auth context
+  const { userData } = useAuth();
+  
   const sessions: Session[] = [
     { scenario: "Atrial Fibrillation", date: "Today", status: "Completed" },
     { scenario: "Basic Calibration", date: "Yesterday", status: "Completed" },
     { scenario: "Tachycardia", date: "3 days ago", status: "In Progress" },
   ];
 
-  // Default user information if userData is not provided
+  // Default user information if userData is incomplete
   const userInfo = {
     name: userData?.name || userData?.username || "Dr. Sarah Johnson",
     role: userData?.role || "Cardiology Fellow",
     institution: userData?.institution || "Cleveland Clinic",
-    trainingTime: userData?.trainingTime || "12.5 hrs",
-    successRate: userData?.successRate || "85%"
+    trainingTime: userData?.trainingTime || "0 hrs",
+    successRate: userData?.successRate || "0%"
   };
 
   return (
