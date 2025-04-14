@@ -20,6 +20,11 @@ const questionsByModule: Record<number, Question[]> = {
       choices: ["To increase heart rate", "To monitor ECG", "To reset the device", "To initiate battery test"],
       correctIndex: 1,
     },
+    {
+      question: "What mode should the Pacemaker be on?",
+      choices: ["VOO", "VVI", "VTT", "AOO", "AAI", "DOO", "DDD", "DDI"],
+      correctIndex: 6,
+    },
   ],
   2: [
     {

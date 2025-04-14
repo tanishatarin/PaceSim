@@ -1,21 +1,4 @@
-// Update sensor states based on pacemaker data
-useEffect(() => {
-  if (pacemakerState) {
-    // Here we're interpreting certain pacemaker states to update the sensing lights
-    // This is a simple example - adjust the logic based on your actual requirements
-    
-    // Example: Left light (atrial sensing) is on when a_output > 0 and aSensitivity > 0
-    const leftOn = (pacemakerState.a_output > 0) && (pacemakerState.aSensitivity > 0);
-    
-    // Example: Right light (ventricular sensing) is on when v_output > 0 and vSensitivity > 0
-    const rightOn = (pacemakerState.v_output > 0) && (pacemakerState.vSensitivity > 0);
-    
-    setSensorStates({
-      left: leftOn,
-      right: rightOn
-    });
-  }
-}, [pacemakerState]);import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +19,25 @@ const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerDa
   'ws://raspberrypi.local:5001',  // Update this to your actual server URL if needed
   'secondary_app_token_456'       // Authentication token
 );
+
+// Update sensor states based on pacemaker data
+useEffect(() => {
+  if (pacemakerState) {
+    // Here we're interpreting certain pacemaker states to update the sensing lights
+    // This is a simple example - adjust the logic based on your actual requirements
+    
+    // Example: Left light (atrial sensing) is on when a_output > 0 and aSensitivity > 0
+    const leftOn = (pacemakerState.a_output > 0) && (pacemakerState.aSensitivity > 0);
+    
+    // Example: Right light (ventricular sensing) is on when v_output > 0 and vSensitivity > 0
+    const rightOn = (pacemakerState.v_output > 0) && (pacemakerState.vSensitivity > 0);
+    
+    setSensorStates({
+      left: leftOn,
+      right: rightOn
+    });
+  }
+}, [pacemakerState]);
 
 const [sensorStates, setSensorStates] = useState({
   left: true,
