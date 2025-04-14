@@ -227,12 +227,13 @@ return (
           {isConnected ? 'Connected to Pacemaker Hardware' : 'Connecting to Pacemaker...'}
         </div>
 
-        {/* Step Section */}
+        {/* Step Section 
         <div className="p-2 bg-red-100 rounded-xl">
           <h3 className="font-bold text-red-900">
             Step 1: {moduleInfo.step}
           </h3>
         </div>
+        */}
 
         {/* EKG Visualization Area */}
         <div className="mt-6">
@@ -244,7 +245,7 @@ return (
             mode={mode}
           />
           {!isConnected && (
-            <div className="mt-2 py-1 text-center text-xs bg-yellow-50 text-yellow-700 rounded-lg">
+            <div className="py-1 mt-2 text-xs text-center text-yellow-700 rounded-lg bg-yellow-50">
               Simulated ECG - Connect hardware for real data
             </div>
           )}
@@ -307,7 +308,7 @@ return (
               className="flex-1"
             />
           </div>
-          <div className="mt-1 text-center text-sm">
+          <div className="mt-1 text-sm text-center">
             Current value: {sliderValue} mV{!isConnected ? ' (simulated)' : ''}
           </div>
         </div>

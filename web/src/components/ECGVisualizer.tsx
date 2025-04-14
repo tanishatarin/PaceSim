@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import {
   generateNormalPacingPoints,
-  generateSensitivtyPoints,
+  generateBradycardiaPoints,
   generateOversensingPoints,
   generateUndersensingPoints,
   generateCaptureModulePoints,
@@ -84,7 +84,7 @@ const ECGVisualizer = ({
         });
 
       case "sensitivity":
-        return generateSensitivtyPoints({
+        return generateBradycardiaPoints({
           rate,
           aOutput,
           vOutput,

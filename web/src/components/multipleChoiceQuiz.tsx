@@ -17,21 +17,56 @@ const questionsByModule: Record<number, Question[]> = {
   1: [
     {
       question: "What is the purpose of the initial pacemaker setting?",
-      choices: ["To increase heart rate", "To monitor ECG", "To reset the device", "To initiate battery test"],
+      choices: [
+        "To increase heart rate",
+        "To monitor ECG",
+        "To reset the device",
+        "To initiate battery test",
+      ],
       correctIndex: 1,
     },
   ],
   2: [
     {
+      question: "What condition is indicated by this ECG?",
+      choices: [
+        "Third Degree Block",
+        "Failure to capture",
+        "Bradycardia",
+        "Atrial fibriliation",
+      ],
+      correctIndex: 2,
+    },
+    {
+      question: "How would we adjust the pacemaker in response?",
+      choices: ["Recalibrate sensing", "Change mode", "Choice 3", "Choice 4"],
+      correctIndex: 0,
+    },
+    {
+      question: "What mode would you put your pacemaker in to start this?",
+      choices: ["VOO", "AAI", "VVI", "DDD"],
+      correctIndex: 3,
+    }
+  ],
+  3: [
+    {
       question: "What does a failure to sense typically indicate?",
-      choices: ["Battery failure", "Loose leads", "High sensing threshold", "Low pacing output"],
+      choices: [
+        "Battery failure",
+        "Loose leads",
+        "High sensing threshold",
+        "Low pacing output",
+      ],
       correctIndex: 2,
     },
   ],
   // Add more modules and questions here
 };
 
-const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ moduleId, onComplete }) => {
+const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
+  moduleId,
+  onComplete,
+}) => {
   const questions = questionsByModule[moduleId] ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -39,7 +74,6 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ moduleId, onCom
   const [correctCount, setCorrectCount] = useState(0);
 
   const currentQuestion = questions[currentIndex];
-
   const handleChoice = (index: number) => {
     setSelectedIndex(index);
     setShowResult(true);
@@ -75,13 +109,12 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ moduleId, onCom
             <Button
               key={index}
               variant={isSelected ? "default" : "outline"}
-              className={`w-full justify-start ${
-                showFeedback
+              className={`w-full justify-start ${showFeedback
                   ? isCorrect
                     ? "bg-green-200 border-green-500"
                     : "bg-red-200 border-red-500"
                   : ""
-              }`}
+                }`}
               onClick={() => handleChoice(index)}
               disabled={showResult}
             >
@@ -98,9 +131,12 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({ moduleId, onCom
               ? "✅ Correct!"
               : `❌ Incorrect. Correct answer: ${currentQuestion.choices[currentQuestion.correctIndex]}`}
           </p>
-          <Button onClick={handleNext}>
-            {currentIndex + 1 < questions.length ? "Next Question" : "Finish Quiz"}
-          </Button>
+          {currentIndex + 1 < questions.length ? (
+            <Button onClick={handleNext}>Next Question</Button>
+          ) : (
+
+            <span>Finished! Now, adjust pacemaker</span> // or style it however you want
+          )}
         </div>
       )}
     </Card>

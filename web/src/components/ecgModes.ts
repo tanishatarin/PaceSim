@@ -91,43 +91,72 @@ export const generateNormalPacingPoints = ({
   return points;
 };
 
-export const generateSensitivtyPoints = ({
+export const generateBradycardiaPoints = ({
   rate,
   aOutput,
   vOutput,
   sensitivity,
 }: ECGParams): Point[] => {
   const points: Point[] = [];
-  const beatLength = 16;
-  const numberOfBeats = 10;
+  const baseComplexLength = 16;
+  const numberOfComplexes = 6; // Match image length
+  const complexSpacing = 200; // Add gap between each beat to reach ~1.8 sec interval
+  
+  const baseComplex: Point[] = [
+    { x: 5, y: 0 },
+    { x: 8, y: 0 },
+    { x: 15, y: 0 },
+    { x: 18, y: 0 },
+    { x: 22, y: 0 },
+    { x: 23, y: 0 },
+    { x: 26, y: 0.088 },
+    { x: 28, y: 0.176 },
+    { x: 30, y: 0.088 },
+    { x: 32, y: 0 },
+    { x: 34, y: 0.088 },
+    { x: 35.8, y: 0 },
+    { x: 36, y: 1.5 },
+    { x: 36.4, y: -0.3 },
+    { x: 37, y: 0 },
+    { x: 39, y: 0.353 },
+    { x: 41, y: 0 },
+    { x: 43, y: 0 },
+    { x: 45, y: 0 },
 
-  const clamp = (val: number, min: number, max: number) =>
-    Math.max(min, Math.min(val, max));
+    { x: 59, y: 0 },
+    { x: 60, y: 0 },
+    { x: 65, y: 0 },
+    { x: 67, y: 0 },
+    { x: 90, y: 0 },
+  ];
+  
+  
+  
+  // Output scaling
+  const scaleOutput = (output: number, max = 5) =>
+    Math.min(max, Math.log(output + 1) / Math.log(6));
 
-  // Gradual scoring: sensitivity of 5 = bad, 0 = perfect
-  const sensitivityScore = clamp((2.5 - sensitivity) / 2.5, 0, 1); // 0–1
-  const effectiveness = sensitivityScore;
+  const aScale = scaleOutput(aOutput, 1);
+  const vScale = scaleOutput(vOutput, 5);
 
-  for (let i = 0; i < numberOfBeats; i++) {
-    const offset = i * beatLength;
+  for (let i = 0; i < numberOfComplexes; i++) {
+    const offset = i * complexSpacing;
 
-    // Simulated intrinsic QRS
-    points.push({ x: offset + 6, y: -0.2 });
-    points.push({ x: offset + 7, y: 1.2 });
-    points.push({ x: offset + 8, y: -0.3 });
+    for (const pt of baseComplex) {
+      let scaledY = pt.y;
 
-    // Gradual logic: more effective → less unnecessary pacing
-    const shouldPace = Math.random() > effectiveness;
-
-    if (shouldPace) {
-      points.push({ x: offset + 9, y: 4 }); // pacing spike
-    }
-
-    // Flatline everywhere else
-    for (let j = 0; j < beatLength; j++) {
-      if (![6, 7, 8, 9].includes(j)) {
-        points.push({ x: offset + j, y: 0 });
+      if (pt.x >= 1 && pt.x <= 3) {
+        scaledY *= aScale; // P wave
+      } else if (pt.x >= 5 && pt.x <= 7) {
+        scaledY *= vScale; // QRS
+      } else if (pt.x >= 10 && pt.x <= 12) {
+        scaledY *= vScale * 0.3; // T wave
       }
+
+      points.push({
+        x: offset + pt.x * 5, // or 3, 4, etc. — to slow it down
+        y: scaledY,
+      });
     }
   }
 
