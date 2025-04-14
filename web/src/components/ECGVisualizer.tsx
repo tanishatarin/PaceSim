@@ -30,6 +30,15 @@ interface ECGVisualizerProps {
     | "failure_to_capture";
 }
 
+const speedMultipliers: Record<string, number> = {
+  initial: 2,
+  sensitivity: 1.5,
+  oversensing: 1.2,
+  undersensing: 2,
+  capture_module: 2.5,
+  failure_to_capture: 2,
+};
+
 const ECGVisualizer = ({
   rate = 150,
   aOutput = 5,
@@ -62,12 +71,6 @@ const ECGVisualizer = ({
     { x: 15, y: 0 }, // Baseline
   ];
 
-  // Non-linear scaling function to simulate physiological response
-  {
-    /*const calculateNonLinearScale = (output : number, maxResponse = 5) => {
-    return Math.min(maxResponse, Math.log(output + 1) / Math.log(6));
-  };*/
-  }
 
   // Generate multiple complexes with amplitude adjustments
   const generatePoints = (): Point[] => {
@@ -172,8 +175,9 @@ const ECGVisualizer = ({
   useEffect(() => {
     const points = generatePoints();
     setData(points.slice(0, 100));
+    const speedMultiplier = speedMultipliers[mode] || 1; // fallback = normal speed
 
-    const updateInterval = 60000 / rate / baseComplex.length;
+    const updateInterval = (60000 / rate / baseComplex.length) * speedMultiplier;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {

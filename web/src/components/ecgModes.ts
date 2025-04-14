@@ -28,23 +28,38 @@ export const generateNormalPacingPoints = ({
   const points: Point[] = [];
   const baseComplexLength = 16;
   const numberOfComplexes = 6; // Match image length
-  const complexSpacing = 45; // Add gap between each beat to reach ~1.8 sec interval
-
+  const complexSpacing = 200; // Add gap between each beat to reach ~1.8 sec interval
+  
   const baseComplex: Point[] = [
-    { x: 0, y: 0 },
-    ...lerp({ x: 1, y: 0.1 }, { x: 3, y: 0.25 }, 5),  // smoother P wave
-    ...lerp({ x: 3, y: 0.25 }, { x: 4, y: 0 }, 3),    // PR segment
-    ...lerp({ x: 4, y: 0 }, { x: 5, y: -0.2 }, 3),    // Q wave
-    ...lerp({ x: 5, y: -0.2 }, { x: 6, y: 1.5 }, 3),  // R
-    ...lerp({ x: 6, y: 1.5 }, { x: 7, y: -0.4 }, 3),  // S
-    ...lerp({ x: 7, y: -0.4 }, { x: 9, y: 0 }, 6),    // ST
-    ...lerp({ x: 9, y: 0 }, { x: 11, y: 0.4 }, 5),    // T
-    ...lerp({ x: 11, y: 0.4 }, { x: 13, y: 0 }, 5),   // End of T wave
-    { x: 14, y: 0 },
+    { x: 5, y: 0 },
+    { x: 8, y: 0 },
     { x: 15, y: 0 },
+    { x: 18, y: 0 },
+    { x: 22, y: 0 },
+    { x: 23, y: 0 },
+    { x: 26, y: 0.088 },
+    { x: 28, y: 0.176 },
+    { x: 30, y: 0.088 },
+    { x: 32, y: 0 },
+    { x: 34, y: 0.088 },
+    { x: 35.8, y: 0 },
+    { x: 36, y: 1.5 },
+    { x: 36.4, y: -0.3 },
+    { x: 37, y: 0 },
+    { x: 39, y: 0.353 },
+    { x: 41, y: 0 },
+    { x: 43, y: 0 },
+    { x: 45, y: 0 },
+
+    { x: 59, y: 0 },
+    { x: 60, y: 0 },
+    { x: 65, y: 0 },
+    { x: 67, y: 0 },
+    { x: 90, y: 0 },
   ];
   
-
+  
+  
   // Output scaling
   const scaleOutput = (output: number, max = 5) =>
     Math.min(max, Math.log(output + 1) / Math.log(6));
@@ -54,15 +69,6 @@ export const generateNormalPacingPoints = ({
 
   for (let i = 0; i < numberOfComplexes; i++) {
     const offset = i * complexSpacing;
-
-    // Simulate appropriate sensing: pace only some beats
-    const isPaced = i % 2 === 0; // Alternate: paced, intrinsic, paced, ...
-
-    if (isPaced) {
-      // Pacing spike before QRS
-      points.push({ x: offset + 4, y: 4 }); // spike
-      points.push({ x: offset + 4.1, y: 0 }); // return to baseline
-    }
 
     for (const pt of baseComplex) {
       let scaledY = pt.y;
@@ -76,7 +82,7 @@ export const generateNormalPacingPoints = ({
       }
 
       points.push({
-        x: offset + pt.x,
+        x: offset + pt.x * 5, // or 3, 4, etc. — to slow it down
         y: scaledY,
       });
     }
@@ -95,7 +101,8 @@ export const generateSensitivtyPoints = ({
   const beatLength = 16;
   const numberOfBeats = 10;
 
-  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(val, max));
+  const clamp = (val: number, min: number, max: number) =>
+    Math.max(min, Math.min(val, max));
 
   // Gradual scoring: sensitivity of 5 = bad, 0 = perfect
   const sensitivityScore = clamp((2.5 - sensitivity) / 2.5, 0, 1); // 0–1
@@ -263,7 +270,8 @@ export const generateFailureToCapturePoints = ({
 
   return points;
 };
-{/**
+{
+  /**
 export const generateSecondDegreeBlockPoints = ({
   rate,
   aOutput,
@@ -354,4 +362,5 @@ export const generateAsystolePoints = ({
 
   return points;
 };
-*/}
+*/
+}
