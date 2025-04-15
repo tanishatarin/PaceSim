@@ -18,6 +18,14 @@ interface ModulePageProps {
   onBack: () => void;
 }
 
+type ECGMode =
+  | "initial"
+  | "sensitivity"
+  | "oversensing"
+  | "undersensing"
+  | "capture_module"
+  | "failure_to_capture";
+
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData();
@@ -72,6 +80,17 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     objective: currentStep?.objective ?? getModuleObjective(moduleId),
   };
 
+  const moduleModes: Record<number, ECGMode> = {
+    1: "initial",
+    2: "sensitivity",
+    3: "oversensing",
+    4: "undersensing",
+    5: "capture_module",
+    6: "failure_to_capture",
+  };
+
+  const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
+
   useEffect(() => {
     startSession(moduleInfo.id, moduleInfo.title);
     return () => endSession(false);
@@ -85,6 +104,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
   }, [quizFinished, moduleId]);
 
+  //simulated pacemaker state
   useEffect(() => {
     if (!currentStep) return;
 
@@ -155,9 +175,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           console.log("🎉 All steps completed!");
           setIsSuccess(true);
           setShowCompletion(true);
-          endSession(true); 
+          endSession(true);
           // Optional: ends session as successful        
-          }
+        }
       }
     }
 
@@ -247,11 +267,11 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
           <div className="mt-6">
             <ECGVisualizer
-              rate={rateValue}
-              aOutput={aOutputSim}
-              vOutput={vOutputSim}
-              sensitivity={sensitivitySim}
-              mode="sensitivity"
+              rate={isConnected ? pacemakerState?.rate ?? 60 : rateValue}
+              aOutput={isConnected ? pacemakerState?.a_output ?? 0 : aOutputSim}
+              vOutput={isConnected ? pacemakerState?.v_output ?? 0 : vOutputSim}
+              sensitivity={isConnected ? pacemakerState?.vSensitivity ?? 2 : sensitivitySim}
+              mode={mode}
             />
           </div>
 
@@ -300,63 +320,78 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">{bpValue}</span>
             </div>
           </div>
-          <div className="space-y-6">
+          {isConnected && (
             <div className="bg-[#F0F6FE] rounded-xl p-4">
-              <h3 className="mb-2 font-bold">Heart Rate</h3>
-              <input
-                type="range"
-                min={20}
-                max={200}
-                step={1}
-                value={rateValue}
-                onChange={(e) => setRateValue(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="text-center mt-2">{rateValue} BPM</div>
+              <h3 className="mb-2 font-bold">Live Values</h3>
+              <p>Rate: {pacemakerState?.rate ?? "–"} BPM</p>
+              <p>A Output: {pacemakerState?.a_output ?? "–"} V</p>
+              <p>V Output: {pacemakerState?.v_output ?? "–"} V</p>
+              <p>Sensitivity: {pacemakerState?.vSensitivity ?? "–"} mV</p>
             </div>
+          )}
 
-            <div className="bg-[#F0F6FE] rounded-xl p-4">
-              <h3 className="mb-2 font-bold">Sensitivity</h3>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={0.1}
-                value={sensitivitySim}
-                onChange={(e) => setSensitivitySim(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="text-center mt-2">{sensitivitySim.toFixed(1)} mV</div>
-            </div>
+          {!isConnected && (
+            <>
+              {/** heart rate */}
+              <div className="space-y-6">
+                <div className="bg-[#F0F6FE] rounded-xl p-4">
+                  <h3 className="mb-2 font-bold">Heart Rate</h3>
+                  <input
+                    type="range"
+                    min={20}
+                    max={200}
+                    step={1}
+                    value={rateValue}
+                    onChange={(e) => setRateValue(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">{rateValue} BPM</div>
+                </div>
+                {/** sensitivity slider */}
+                <div className="bg-[#F0F6FE] rounded-xl p-4">
+                  <h3 className="mb-2 font-bold">Sensitivity</h3>
+                  <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={0.1}
+                    value={sensitivitySim}
+                    onChange={(e) => setSensitivitySim(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">{sensitivitySim.toFixed(1)} mV</div>
+                </div>
 
-            <div className="bg-[#F0F6FE] rounded-xl p-4">
-              <h3 className="mb-2 font-bold">Atrial Output</h3>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={0.1}
-                value={aOutputSim}
-                onChange={(e) => setAOutputSim(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="text-center mt-2">{aOutputSim.toFixed(1)} V</div>
-            </div>
-
-            <div className="bg-[#F0F6FE] rounded-xl p-4">
-              <h3 className="mb-2 font-bold">Ventricular Output</h3>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={0.1}
-                value={vOutputSim}
-                onChange={(e) => setVOutputSim(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="text-center mt-2">{vOutputSim.toFixed(1)} V</div>
-            </div>
-          </div>
+                <div className="bg-[#F0F6FE] rounded-xl p-4">
+                  <h3 className="mb-2 font-bold">Atrial Output</h3>
+                  <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={0.1}
+                    value={aOutputSim}
+                    onChange={(e) => setAOutputSim(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">{aOutputSim.toFixed(1)} V</div>
+                </div>
+                {/** voutput */}
+                <div className="bg-[#F0F6FE] rounded-xl p-4">
+                  <h3 className="mb-2 font-bold">Ventricular Output</h3>
+                  <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={0.1}
+                    value={vOutputSim}
+                    onChange={(e) => setVOutputSim(Number(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="text-center mt-2">{vOutputSim.toFixed(1)} V</div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {showWarning && currentStep && blockedSetting && (
