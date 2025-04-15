@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +10,7 @@ interface Question {
 
 interface MultipleChoiceQuizProps {
   moduleId: number;
-  onComplete?: (passed: boolean) => void;
+  onQuizFinished?: () => void;
 }
 
 const questionsByModule: Record<number, Question[]> = {
@@ -65,13 +65,14 @@ const questionsByModule: Record<number, Question[]> = {
 
 const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
   moduleId,
-  onComplete,
+  onQuizFinished,
 }) => {
   const questions = questionsByModule[moduleId] ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+  const [quizDone, setQuizDone] = useState(false);
 
   const currentQuestion = questions[currentIndex];
   const handleChoice = (index: number) => {
@@ -88,10 +89,24 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
     if (currentIndex + 1 < questions.length) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      onComplete?.(correctCount === questions.length);
+      console.log("✅ quiz done from handleNext");
+      setQuizDone(true); // Not strictly needed unless you're showing something else
+      onQuizFinished?.();
     }
   };
+  
+  useEffect(() => {
+    const isLastQuestion = currentIndex === questions.length - 1;
+    const answeredLast = showResult && selectedIndex !== null;
+  
+    if (isLastQuestion && answeredLast && !quizDone) {
+      console.log("✅ calling onQuizFinished!");
+      setQuizDone(true);
+      onQuizFinished?.();
+    }
+  }, [currentIndex, showResult, selectedIndex, quizDone, onQuizFinished, questions.length]);
 
+  
   if (!currentQuestion) {
     return <p>No questions for this module.</p>;
   }
@@ -134,7 +149,6 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
           {currentIndex + 1 < questions.length ? (
             <Button onClick={handleNext}>Next Question</Button>
           ) : (
-
             <span>Finished! Now, adjust pacemaker</span> // or style it however you want
           )}
         </div>

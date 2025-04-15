@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/pages/ModulePage.tsx
+import React, { useEffect, useState } from "react";
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,11 @@ import ECGVisualizer from "@/components/ECGVisualizer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/contexts/SessionContext";
 import MultipleChoiceQuiz from "./multipleChoiceQuiz";
+import { allModuleSteps } from "./modules";
+import { PacemakerState } from "@/utils/PacemakerWebSocketClient";
+import { ModuleStep } from "@/types/module";
 import { usePacemakerData } from "@/hooks/usePacemakerData";
+
 
 interface ModulePageProps {
   moduleId: number;
@@ -14,7 +19,7 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
-  // Connect to pacemaker data
+
   const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData();
   
   // Update sensor states based on pacemaker data
@@ -41,82 +46,120 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     right: true,
   });
 
+
+  const [quizFinished, setQuizFinished] = useState(false);
+  const [steps, setSteps] = useState<ModuleStep[]>([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const currentStep = steps[currentStepIndex] ?? null;
+
+  const [rateValue, setRateValue] = useState(40);
+  const [aOutputSim, setAOutputSim] = useState(5);
+  const [vOutputSim, setVOutputSim] = useState(5);
+  const [sensitivitySim, setSensitivitySim] = useState(2);
+  const [lastKnownState, setLastKnownState] = useState<PacemakerState | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
+  const [blockedSetting, setBlockedSetting] = useState<string | null>(null);
+
   const [showCompletion, setShowCompletion] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const { userData } = useAuth();
   const { startSession, endSession } = useSession();
 
-  // Get module info
   const moduleInfo = {
     id: moduleId.toString(),
     title: getModuleTitle(moduleId),
-    objective: getModuleObjective(moduleId),
-    step: "Set the Sensing Threshold",
+    objective: currentStep?.objective ?? getModuleObjective(moduleId),
   };
 
-  type ECGMode =
-    | "initial"
-    | "sensitivity"
-    | "oversensing"
-    | "undersensing"
-    | "capture_module"
-    | "failure_to_capture";
-
-  const moduleModes: Record<number, ECGMode> = {
-    1: "initial",
-    2: "sensitivity",
-    3: "oversensing",
-    4: "undersensing",
-    5: "capture_module",
-    6: "failure_to_capture",
-  };
-
-  const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
-
-  // For slider control, we'll use a completely local state approach
-  const [sliderValue, setSliderValue] = useState(2); // Start with default value of 2
-  const [rateValue, setRateValue] = useState(40); // Start at 40 BPM
-
-
-  // Use actual hardware data when available, fall back to defaults when not connected
-  const rate = pacemakerState?.rate ?? 60;
-  const aOutput = pacemakerState?.a_output ?? 5;
-  const vOutput = pacemakerState?.v_output ?? 5;
-
-  // Connection status indicator
-  const connectionStatus = isConnected ? "Connected to Pacemaker" : "Connecting to Pacemaker...";
-
-  // Start tracking time when the module is loaded
   useEffect(() => {
-    // Start tracking in Session context
     startSession(moduleInfo.id, moduleInfo.title);
-
-    // Clean up function to end session if user navigates away without completing
-    return () => {
-      if (!showCompletion) {
-        endSession(false);
-      }
-    };
+    return () => endSession(false);
   }, []);
 
-  // Sync with pacemaker data when it's available
   useEffect(() => {
-    if (pacemakerState?.vSensitivity !== undefined) {
-      setSliderValue(pacemakerState.vSensitivity);
+    if (quizFinished) {
+      const loaded = allModuleSteps[moduleId] ?? [];
+      setSteps(loaded);
+      setCurrentStepIndex(0);
     }
-  }, [pacemakerState?.vSensitivity]);
+  }, [quizFinished, moduleId]);
 
-  // We'll use the slider value for ECG visualization
-  const sensitivity = sliderValue;
+  useEffect(() => {
+    if (!currentStep) return;
 
-  const handleComplete = (success: boolean) => {
-    setIsSuccess(success);
-    setShowCompletion(true);
+    const simulatedState: PacemakerState = {
+      rate: rateValue,
+      a_output: aOutputSim,
+      v_output: vOutputSim,
+      aSensitivity: 2,
+      vSensitivity: sensitivitySim,
+      mode: 0,
+      isLocked: false,
+      isPaused: false,
+      pauseTimeLeft: 0,
+      batteryLevel: 100,
+      lastUpdate: Date.now(),
+    };
 
-    // End training session
-    endSession(success);
-  };
+    if (!lastKnownState) {
+      setLastKnownState(simulatedState);
+      return;
+    }
+
+    const nonControlKeys: (keyof PacemakerState)[] = [
+      "lastUpdate",
+      "batteryLevel",
+      "isLocked",
+      "isPaused",
+      "pauseTimeLeft",
+      "mode"
+    ];
+    
+    const disallowedKeys = Object.keys(simulatedState)
+      .filter((key) =>
+        !currentStep.allowedControls.includes(key) &&
+        !nonControlKeys.includes(key as keyof PacemakerState)
+      ) as (keyof PacemakerState)[];
+    
+
+    for (const key of disallowedKeys) {
+      const prevVal = lastKnownState[key];
+      const newVal = simulatedState[key];
+      const hasChanged =
+        typeof newVal === "number" && typeof prevVal === "number"
+          ? Math.abs(newVal - prevVal) > 0.01
+          : newVal !== prevVal;
+
+      if (hasChanged) {
+        setBlockedSetting(key);
+        setShowWarning(true);
+        break;
+      }
+    }
+    if (currentStep.targetValues) {
+      const matchedAllTargets = Object.entries(currentStep.targetValues).every(
+        ([key, expected]) => {
+          const actual = simulatedState[key as keyof PacemakerState];
+          return typeof expected === "number" && typeof actual === "number"
+            ? Math.abs(expected - actual) < 0.01
+            : expected === actual;
+        }
+      );
+    
+      if (matchedAllTargets) {
+        if (currentStepIndex < steps.length - 1) {
+          console.log("✅ Step completed, moving to next step!");
+          setCurrentStepIndex((prev) => prev + 1);
+        } else {
+          console.log("🎉 All steps completed!");
+        }
+      }
+    }
+    
+
+    setLastKnownState(simulatedState);
+  }, [rateValue, aOutputSim, vOutputSim, sensitivitySim, currentStep]);
 
   const handleBack = () => {
     if (!showCompletion) {
@@ -125,25 +168,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
     onBack();
   };
-
-  {/**   // Handle sensitivity slider change - simplified approach
-  const handleSensitivityChange = (newValue: number) => {
-    console.log("🌀 Sensitivity changed to:", newValue);
-
-    // Always update local state first for immediate UI feedback
-    setSliderValue(newValue);
-
-    // Then send to pacemaker if connected
-    if (isConnected) {
-      // Based on module, send to appropriate sensitivity
-      if (moduleId === 4) { // AAI mode
-        sendControlUpdate({ aSensitivity: newValue });
-      } else {
-        sendControlUpdate({ vSensitivity: newValue });
-      }
-    }
-  };*/}
-
 
   // Only use the real hardware data for HR
   const hrValue = pacemakerState?.rate;
@@ -196,70 +220,42 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   return (
     <Card className="w-full p-8 bg-white shadow-lg rounded-3xl">
-      {/* Header with Hint Button */}
       <div className="flex items-start justify-between mb-8">
-        <div className="flex items-center">
-          <h2 className="text-2xl font-bold">
-            Module {moduleId}: {moduleInfo.title}
-          </h2>
-        </div>
+        <h2 className="text-2xl font-bold">
+          Module {moduleId}: {moduleInfo.title}
+        </h2>
         <Button
           variant="ghost"
-          size="lg"
-          className="flex items-center justify-center p-4 bg-blue-100 rounded-xl w-14 h-14"
-          onClick={() => alert("Hint: Try adjusting the Sensing Threshold.")}
+          className="bg-blue-100 w-14 h-14 rounded-xl"
+          onClick={() => alert("Hint: Try adjusting the pacemaker settings.")}
         >
           <Lightbulb className="w-8 h-8 text-blue-600" />
         </Button>
       </div>
 
       <div className="grid grid-cols-3 gap-8">
-        {/* Left Section (2 columns) */}
         <div className="col-span-2 space-y-4">
-          {/* Objective Section */}
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="mb-2 font-bold">Objective:</h3>
             <p>{moduleInfo.objective}</p>
           </div>
 
-          {/* Connection Status */}
-          <div className={`p-2 rounded-xl text-sm ${isConnected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-            {isConnected ? 'Connected to Pacemaker Hardware' : 'Connecting to Pacemaker...'}
-          </div>
-
-          {/* Step Section 
-        <div className="p-2 bg-red-100 rounded-xl">
-          <h3 className="font-bold text-red-900">
-            Step 1: {moduleInfo.step}
-          </h3>
-        </div>
-        */}
-
-          {/* EKG Visualization Area */}
           <div className="mt-6">
             <ECGVisualizer
-              rate={hrValue}
-              aOutput={aOutput}
-              vOutput={vOutput}
-              sensitivity={sensitivity}
-              mode={mode}
+              rate={rateValue}
+              aOutput={aOutputSim}
+              vOutput={vOutputSim}
+              sensitivity={sensitivitySim}
+              mode="sensitivity"
             />
-            {!isConnected && (
-              <div className="py-1 mt-2 text-xs text-center text-yellow-700 rounded-lg bg-yellow-50">
-                Simulated ECG - Connect hardware for real data
-              </div>
-            )}
           </div>
+
           <MultipleChoiceQuiz
             moduleId={moduleId}
-            onComplete={(passed) => {
-              console.log("Quiz complete. Passed?", passed);
-              if (passed) handleComplete(true); // or unlock the next step
-            }}
+            onQuizFinished={() => setQuizFinished(true)}
           />
         </div>
-
-        {/* Right Section (1 column) */}
+      {/* Right Section (1 column) */}
         <div className="space-y-6">
           {/* Sensing Lights */}
           <div className="bg-[#F0F6FE] rounded-xl p-4">
@@ -280,7 +276,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             <h3 className="mb-2 font-bold">HR</h3>
             <div className="flex justify-center">
               <span className="text-5xl text-gray-600 font">
-                {isConnected && pacemakerState ? hrValue : 61}
+                {isConnected && pacemakerState ? rateValue : 61}
               </span>
             </div>
           </div>
@@ -291,62 +287,92 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">{bpValue}</span>
             </div>
           </div>
-
-          {/* Heart Rate Control (simulated) */}
+        <div className="space-y-6">
           <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="mb-2 font-bold">Heart Rate (simulated)</h3>
-            <div className="flex items-center gap-2">
-              <input
-                type="range"
-                min={30}
-                max={120}
-                step={1}
-                value={rateValue}
-                onChange={(e) => setRateValue(Number(e.target.value))}
-                className="flex-1"
-              />
-            </div>
-            <div className="mt-1 text-sm text-center">
-              Current rate: {rateValue} BPM
-            </div>
+            <h3 className="mb-2 font-bold">Heart Rate</h3>
+            <input
+              type="range"
+              min={20}
+              max={200}
+              step={1}
+              value={rateValue}
+              onChange={(e) => setRateValue(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="text-center mt-2">{rateValue} BPM</div>
           </div>
 
+          <div className="bg-[#F0F6FE] rounded-xl p-4">
+            <h3 className="mb-2 font-bold">Sensitivity</h3>
+            <input
+              type="range"
+              min={0}
+              max={10}
+              step={0.1}
+              value={sensitivitySim}
+              onChange={(e) => setSensitivitySim(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="text-center mt-2">{sensitivitySim.toFixed(1)} mV</div>
+          </div>
 
-          {/* Complete/Fail Buttons */}
-          <div className="flex mt-6 space-x-3">
-            <Button
-              variant="outline"
-              className="w-1/2 text-red-500 border-red-500 hover:bg-red-50"
-              onClick={() => handleComplete(false)}
-            >
-              Fail Module
-            </Button>
-            <Button
-              className="w-1/2 bg-green-500 hover:bg-green-600"
-              onClick={() => handleComplete(true)}
-            >
-              Complete
-            </Button>
+          <div className="bg-[#F0F6FE] rounded-xl p-4">
+            <h3 className="mb-2 font-bold">Atrial Output</h3>
+            <input
+              type="range"
+              min={0}
+              max={10}
+              step={0.1}
+              value={aOutputSim}
+              onChange={(e) => setAOutputSim(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="text-center mt-2">{aOutputSim.toFixed(1)} V</div>
+          </div>
+
+          <div className="bg-[#F0F6FE] rounded-xl p-4">
+            <h3 className="mb-2 font-bold">Ventricular Output</h3>
+            <input
+              type="range"
+              min={0}
+              max={10}
+              step={0.1}
+              value={vOutputSim}
+              onChange={(e) => setVOutputSim(Number(e.target.value))}
+              className="w-full"
+            />
+            <div className="text-center mt-2">{vOutputSim.toFixed(1)} V</div>
           </div>
         </div>
       </div>
 
-      {/* Exit Button */}
+      {showWarning && currentStep && blockedSetting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md text-center">
+            <h3 className="text-lg font-bold mb-2">Hold Up ⛔️</h3>
+            <p className="text-sm mb-4">
+              You're not supposed to change <strong>{blockedSetting}</strong> during this step.<br />
+              Allowed controls: <strong>{currentStep.allowedControls.join(", ") || "none"}</strong>
+            </p>
+            <p className="text-xs mt-2">
+              Value went from {lastKnownState?.[blockedSetting as keyof PacemakerState]} to {" "}
+              {rateValue || aOutputSim || vOutputSim || sensitivitySim}
+            </p>
+            <Button onClick={() => setShowWarning(false)}>Got it</Button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-8">
-        <Button
-          variant="ghost"
-          className="px-0 text-gray-600 hover:text-gray-800"
-          onClick={handleBack}
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Exit Module
+        <Button variant="ghost" className="px-0 text-gray-600 hover:text-gray-800" onClick={onBack}>
+          <ArrowLeft className="w-5 h-5 mr-2" /> Exit Module
         </Button>
+      </div>
       </div>
     </Card>
   );
 };
 
-// Helper functions to get module information
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {
     1: "Initial Pacemaker",
@@ -356,20 +382,18 @@ function getModuleTitle(moduleId: number): string {
     5: "Capture Module",
     6: "Failure to Capture",
   };
-
   return titles[moduleId] || "Unknown Module";
 }
 
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     1: "Initial external pacemaker calibration: intrinsic ECG",
-    2: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust the pacemaker",
+    2: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust pacemaker",
     3: "Diagnose and correct scenario",
     4: "Diagnose and correct scenario",
     5: "Learn to correctly capture",
     6: "Correct a failure to capture",
   };
-
   return objectives[moduleId] || "Complete the module tasks";
 }
 
