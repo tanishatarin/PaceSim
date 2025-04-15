@@ -74,6 +74,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const { userData } = useAuth();
   const { startSession, endSession } = useSession();
 
+  // Always use real data if connected, otherwise use local simulated state
+  const rateResolved = isConnected ? pacemakerState?.rate ?? 60 : rateValue;
+  const aOutputResolved = isConnected ? pacemakerState?.a_output ?? 0 : aOutputSim;
+  const vOutputResolved = isConnected ? pacemakerState?.v_output ?? 0 : vOutputSim;
+  const sensitivityResolved = isConnected ? pacemakerState?.vSensitivity ?? 2 : sensitivitySim;
+
+
   const moduleInfo = {
     id: moduleId.toString(),
     title: getModuleTitle(moduleId),
@@ -122,8 +129,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
       lastUpdate: Date.now(),
     };
 
+    const currentState = isConnected && pacemakerState ? pacemakerState : simulatedState;
+
     if (!lastKnownState) {
-      setLastKnownState(simulatedState);
+      setLastKnownState(currentState);
       return;
     }
 
@@ -136,7 +145,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
       "mode"
     ];
 
-    const disallowedKeys = Object.keys(simulatedState)
+    const disallowedKeys = Object.keys(currentState)
       .filter((key) =>
         !currentStep.allowedControls.includes(key) &&
         !nonControlKeys.includes(key as keyof PacemakerState)
@@ -145,7 +154,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
     for (const key of disallowedKeys) {
       const prevVal = lastKnownState[key];
-      const newVal = simulatedState[key];
+      const newVal = currentState[key];
       const hasChanged =
         typeof newVal === "number" && typeof prevVal === "number"
           ? Math.abs(newVal - prevVal) > 0.01
@@ -160,7 +169,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     if (currentStep.targetValues) {
       const matchedAllTargets = Object.entries(currentStep.targetValues).every(
         ([key, expected]) => {
-          const actual = simulatedState[key as keyof PacemakerState];
+          const actual = currentState[key as keyof PacemakerState];
           return typeof expected === "number" && typeof actual === "number"
             ? Math.abs(expected - actual) < 0.01
             : expected === actual;
@@ -192,9 +201,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
     onBack();
   };
-
-  // Only use the real hardware data for HR
-  const hrValue = pacemakerState?.rate;
 
   // BP would typically come from a separate monitoring system in real hardware
   // For now we'll keep this as a constant, but ideally it would come from hardware too
@@ -267,10 +273,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
           <div className="mt-6">
             <ECGVisualizer
-              rate={isConnected ? pacemakerState?.rate ?? 60 : rateValue}
-              aOutput={isConnected ? pacemakerState?.a_output ?? 0 : aOutputSim}
-              vOutput={isConnected ? pacemakerState?.v_output ?? 0 : vOutputSim}
-              sensitivity={isConnected ? pacemakerState?.vSensitivity ?? 2 : sensitivitySim}
+              rate={rateResolved}
+              aOutput={aOutputResolved}
+              vOutput={vOutputResolved}
+              sensitivity={sensitivityResolved}
               mode={mode}
             />
           </div>
@@ -288,7 +294,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             <div className="flex justify-around">
               {/** pacing light */}
               <div
-                className={`w-16 h-16 rounded-full transition-all duration-300 ${sensorStates.left ? "bg-green-400" : "bg-gray-300"
+                className={`w-16 h-16 rounded-full transition-all duration-500 ${sensorStates.left ? "bg-green-400" : "bg-gray-300"
                   } ${quizFinished && currentStepIndex === 3
                     ? "animate-pulse ring-4 ring-green-300"
                     : ""
@@ -296,7 +302,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               />
               {/** sensing light */}
               <div
-                className={`w-16 h-16 rounded-full transition-all duration-300 ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"
+                className={`w-16 h-16 rounded-full transition-all duration-500 ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"
                   } ${quizFinished && currentStepIndex < 3
                     ? "animate-pulse ring-4 ring-blue-300"
                     : ""
@@ -309,7 +315,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             <h3 className="mb-2 font-bold">HR</h3>
             <div className="flex justify-center">
               <span className="text-5xl text-gray-600 font">
-                {isConnected && pacemakerState ? rateValue : 61}
+                {rateResolved}
               </span>
             </div>
           </div>
