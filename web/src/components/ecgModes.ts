@@ -110,7 +110,6 @@ export const generateBradycardiaPoints = ({
     { x: 28, y: 0.176 },
     { x: 30, y: 0.088 },
     { x: 32, y: 0 },
-    { x: 34, y: 0.088 },
     { x: 35.8, y: 0 },
     { x: 36, y: 1.5 },
     { x: 36.4, y: -0.3 },
@@ -125,13 +124,6 @@ export const generateBradycardiaPoints = ({
     { x: 67, y: 0 },
     { x: 90, y: 0 },
   ];
-
-  // Output scaling
-  const scaleOutput = (output: number, max = 5) =>
-    Math.min(max, Math.log(output + 1) / Math.log(6));
-
-  const aScale = scaleOutput(aOutput, 1);
-  const vScale = scaleOutput(vOutput, 5);
 
   // Trim complex if rate is higher
   const trimComplex = (complex: Point[], rate: number): Point[] => {
@@ -153,10 +145,9 @@ export const generateBradycardiaPoints = ({
   };
 
   // How many flatlines to insert between beats (based on bpm)
-  const getFlatlineCount = (rate: number): number => {
-    if (rate <= 45) return 3;
-    if (rate <= 55) return 2;
-    if (rate < 65) return 1;
+  const getFlatlineCount = (sensitivity: number): number => {
+    if (sensitivity >= 0.8) return 3;
+    if (sensitivity < 0.75) return 1;
     return 0;
   };
 
@@ -168,14 +159,6 @@ export const generateBradycardiaPoints = ({
     // Add waveform
     for (const pt of adjustedComplex) {
       let scaledY = pt.y;
-
-      if (pt.x >= 26 && pt.x <= 32) {
-        scaledY *= aScale; // P wave
-      } else if (pt.x >= 35 && pt.x <= 39) {
-        scaledY *= vScale; // QRS
-      } else if (pt.x >= 39 && pt.x <= 43) {
-        scaledY *= vScale * 0.3; // T wave
-      }
 
       points.push({
         x: xCursor + pt.x,

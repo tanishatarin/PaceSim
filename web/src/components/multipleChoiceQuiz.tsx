@@ -28,7 +28,7 @@ const questionsByModule: Record<number, Question[]> = {
   ],
   2: [
     {
-      question: "What condition is indicated by this ECG?",
+      question: "First, what condition is indicated by this ECG?",
       choices: [
         "Third Degree Block",
         "Failure to capture",

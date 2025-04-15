@@ -21,7 +21,7 @@ interface ModulePageProps {
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData();
-  
+
   // Update sensor states based on pacemaker data
   useEffect(() => {
     if (pacemakerState) {
@@ -115,13 +115,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
       "pauseTimeLeft",
       "mode"
     ];
-    
+
     const disallowedKeys = Object.keys(simulatedState)
       .filter((key) =>
         !currentStep.allowedControls.includes(key) &&
         !nonControlKeys.includes(key as keyof PacemakerState)
       ) as (keyof PacemakerState)[];
-    
+
 
     for (const key of disallowedKeys) {
       const prevVal = lastKnownState[key];
@@ -146,7 +146,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             : expected === actual;
         }
       );
-    
+
       if (matchedAllTargets) {
         if (currentStepIndex < steps.length - 1) {
           console.log("✅ Step completed, moving to next step!");
@@ -156,7 +156,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
         }
       }
     }
-    
+
 
     setLastKnownState(simulatedState);
   }, [rateValue, aOutputSim, vOutputSim, sensitivitySim, currentStep]);
@@ -171,6 +171,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   // Only use the real hardware data for HR
   const hrValue = pacemakerState?.rate;
+
   // BP would typically come from a separate monitoring system in real hardware
   // For now we'll keep this as a constant, but ideally it would come from hardware too
   const bpValue = "120/80";
@@ -255,18 +256,26 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             onQuizFinished={() => setQuizFinished(true)}
           />
         </div>
-      {/* Right Section (1 column) */}
+        {/* Right Section (1 column) */}
         <div className="space-y-6">
-          {/* Sensing Lights */}
+          {/* Lights */}
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="mb-4 font-bold">Sensing Lights:</h3>
             <div className="flex justify-around">
+              {/** pacing light */}
               <div
-                className={`w-16 h-16 rounded-full ${sensorStates.left ? "bg-green-400" : "bg-gray-300"
+                className={`w-16 h-16 rounded-full transition-all duration-300 ${sensorStates.left ? "bg-green-400" : "bg-gray-300"
+                  } ${quizFinished && currentStepIndex === 3
+                    ? "animate-pulse ring-4 ring-green-300"
+                    : ""
                   }`}
               />
+              {/** sensing light */}
               <div
-                className={`w-16 h-16 rounded-full ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"
+                className={`w-16 h-16 rounded-full transition-all duration-300 ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"
+                  } ${quizFinished && currentStepIndex < 3
+                    ? "animate-pulse ring-4 ring-blue-300"
+                    : ""
                   }`}
               />
             </div>
@@ -287,87 +296,87 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">{bpValue}</span>
             </div>
           </div>
-        <div className="space-y-6">
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="mb-2 font-bold">Heart Rate</h3>
-            <input
-              type="range"
-              min={20}
-              max={200}
-              step={1}
-              value={rateValue}
-              onChange={(e) => setRateValue(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-2">{rateValue} BPM</div>
-          </div>
+          <div className="space-y-6">
+            <div className="bg-[#F0F6FE] rounded-xl p-4">
+              <h3 className="mb-2 font-bold">Heart Rate</h3>
+              <input
+                type="range"
+                min={20}
+                max={200}
+                step={1}
+                value={rateValue}
+                onChange={(e) => setRateValue(Number(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-center mt-2">{rateValue} BPM</div>
+            </div>
 
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="mb-2 font-bold">Sensitivity</h3>
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={0.1}
-              value={sensitivitySim}
-              onChange={(e) => setSensitivitySim(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-2">{sensitivitySim.toFixed(1)} mV</div>
-          </div>
+            <div className="bg-[#F0F6FE] rounded-xl p-4">
+              <h3 className="mb-2 font-bold">Sensitivity</h3>
+              <input
+                type="range"
+                min={0}
+                max={10}
+                step={0.1}
+                value={sensitivitySim}
+                onChange={(e) => setSensitivitySim(Number(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-center mt-2">{sensitivitySim.toFixed(1)} mV</div>
+            </div>
 
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="mb-2 font-bold">Atrial Output</h3>
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={0.1}
-              value={aOutputSim}
-              onChange={(e) => setAOutputSim(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-2">{aOutputSim.toFixed(1)} V</div>
-          </div>
+            <div className="bg-[#F0F6FE] rounded-xl p-4">
+              <h3 className="mb-2 font-bold">Atrial Output</h3>
+              <input
+                type="range"
+                min={0}
+                max={10}
+                step={0.1}
+                value={aOutputSim}
+                onChange={(e) => setAOutputSim(Number(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-center mt-2">{aOutputSim.toFixed(1)} V</div>
+            </div>
 
-          <div className="bg-[#F0F6FE] rounded-xl p-4">
-            <h3 className="mb-2 font-bold">Ventricular Output</h3>
-            <input
-              type="range"
-              min={0}
-              max={10}
-              step={0.1}
-              value={vOutputSim}
-              onChange={(e) => setVOutputSim(Number(e.target.value))}
-              className="w-full"
-            />
-            <div className="text-center mt-2">{vOutputSim.toFixed(1)} V</div>
-          </div>
-        </div>
-      </div>
-
-      {showWarning && currentStep && blockedSetting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md text-center">
-            <h3 className="text-lg font-bold mb-2">Hold Up ⛔️</h3>
-            <p className="text-sm mb-4">
-              You're not supposed to change <strong>{blockedSetting}</strong> during this step.<br />
-              Allowed controls: <strong>{currentStep.allowedControls.join(", ") || "none"}</strong>
-            </p>
-            <p className="text-xs mt-2">
-              Value went from {lastKnownState?.[blockedSetting as keyof PacemakerState]} to {" "}
-              {rateValue || aOutputSim || vOutputSim || sensitivitySim}
-            </p>
-            <Button onClick={() => setShowWarning(false)}>Got it</Button>
+            <div className="bg-[#F0F6FE] rounded-xl p-4">
+              <h3 className="mb-2 font-bold">Ventricular Output</h3>
+              <input
+                type="range"
+                min={0}
+                max={10}
+                step={0.1}
+                value={vOutputSim}
+                onChange={(e) => setVOutputSim(Number(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-center mt-2">{vOutputSim.toFixed(1)} V</div>
+            </div>
           </div>
         </div>
-      )}
 
-      <div className="mt-8">
-        <Button variant="ghost" className="px-0 text-gray-600 hover:text-gray-800" onClick={onBack}>
-          <ArrowLeft className="w-5 h-5 mr-2" /> Exit Module
-        </Button>
-      </div>
+        {showWarning && currentStep && blockedSetting && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] max-w-md text-center">
+              <h3 className="text-lg font-bold mb-2">Hold Up ⛔️</h3>
+              <p className="text-sm mb-4">
+                You're not supposed to change <strong>{blockedSetting}</strong> during this step.<br />
+                Allowed controls: <strong>{currentStep.allowedControls.join(", ") || "none"}</strong>
+              </p>
+              <p className="text-xs mt-2">
+                Value went from {lastKnownState?.[blockedSetting as keyof PacemakerState]} to {" "}
+                {rateValue || aOutputSim || vOutputSim || sensitivitySim}
+              </p>
+              <Button onClick={() => setShowWarning(false)}>Got it</Button>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-8">
+          <Button variant="ghost" className="px-0 text-gray-600 hover:text-gray-800" onClick={onBack}>
+            <ArrowLeft className="w-5 h-5 mr-2" /> Exit Module
+          </Button>
+        </div>
       </div>
     </Card>
   );
@@ -388,7 +397,7 @@ function getModuleTitle(moduleId: number): string {
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     1: "Initial external pacemaker calibration: intrinsic ECG",
-    2: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust pacemaker",
+    2: "Diagnose and correct a failure to sense condition. First, answer the multiple choice at the bottom and then adjust pacemaker",
     3: "Diagnose and correct scenario",
     4: "Diagnose and correct scenario",
     5: "Learn to correctly capture",
