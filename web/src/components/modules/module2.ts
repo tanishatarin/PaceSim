@@ -2,7 +2,7 @@ import { ModuleStep } from "@/types/module";
 
 export const module2Steps: ModuleStep[] = [
   {
-    objective: "Decrease heart rate to 10 below the heart rate",
+    objective: "The patient has a heart rate of 40 BPM, set the pacemaker heart rate appropriately",
     allowedControls: ["rate"],
     targetValues: { rate: 30 },
   },
@@ -26,6 +26,6 @@ export const module2Steps: ModuleStep[] = [
   {
     objective: "Set sensitivity based on sensing light threshold",
     allowedControls: ["vSensitivity"],
-    targetValues: { vSensitivity: 0.7 },
+    targetValues: { vSensitivity: 0.8 },
   }
 ];
