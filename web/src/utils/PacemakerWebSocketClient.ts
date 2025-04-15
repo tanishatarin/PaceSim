@@ -65,6 +65,9 @@ export interface PacemakerState {
           
           // Otherwise, it's a state update
           this.currentState = data as PacemakerState;
+
+          console.log('Received pacemaker state:', this.currentState);
+
           this.notifyStateChange(this.currentState);
         } catch (e) {
           console.error('Error parsing message:', e);

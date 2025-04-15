@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { PacemakerWebSocketClient, PacemakerState } from '../utils/PacemakerWebSocketClient';
+import client from '../utils/pacemakerClientInstance';
 
 interface PacemakerDataHook {
   state: PacemakerState | null;
@@ -11,11 +12,10 @@ interface PacemakerDataHook {
   sendControlUpdate: (updates: Partial<PacemakerState>) => void;
 }
 
-export const usePacemakerData = (
-  serverUrl: string = 'ws://raspberrypi.local:5001',
-  token: string = 'secondary_app_token_456'
-): PacemakerDataHook => {
-  const [client] = useState(() => new PacemakerWebSocketClient(serverUrl, token));
+
+export const usePacemakerData = (): PacemakerDataHook => {
+
+  //const [client] = useState(() => new PacemakerWebSocketClient(serverUrl, token));
   const [state, setState] = useState<PacemakerState | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -68,6 +68,7 @@ export const usePacemakerData = (
     sendControlUpdate
   };
 };
+
 
 // EXAMPLE USAGE IN A REACT COMPONENT:
 

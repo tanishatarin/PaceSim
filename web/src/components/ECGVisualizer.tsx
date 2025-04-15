@@ -31,8 +31,8 @@ interface ECGVisualizerProps {
 }
 
 const speedMultipliers: Record<string, number> = {
-  initial: 2,
-  sensitivity: 1.5,
+  initial: 1,
+  sensitivity: 1,
   oversensing: 1.2,
   undersensing: 2,
   capture_module: 2.5,
