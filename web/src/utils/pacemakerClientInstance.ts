@@ -2,8 +2,8 @@
 import { PacemakerWebSocketClient } from './PacemakerWebSocketClient';
 
 const sharedClient = new PacemakerWebSocketClient(
-  'ws://raspberrypi.local:5001', // ✅ Your backend websocket server
-  'secondary_app_token_456'      // ✅ Your auth token
+  'ws://raspberrypi.local:5001', // your backend websocket server
+  'secondary_app_token_456'      // your auth token
 );
 
 export default sharedClient;

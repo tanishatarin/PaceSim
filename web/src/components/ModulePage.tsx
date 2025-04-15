@@ -126,7 +126,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     onBack();
   };
 
-  // Handle sensitivity slider change - simplified approach
+  {/**   // Handle sensitivity slider change - simplified approach
   const handleSensitivityChange = (newValue: number) => {
     console.log("🌀 Sensitivity changed to:", newValue);
 
@@ -142,7 +142,8 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
         sendControlUpdate({ vSensitivity: newValue });
       }
     }
-  };
+  };*/}
+
 
   // Only use the real hardware data for HR
   const hrValue = pacemakerState?.rate;
