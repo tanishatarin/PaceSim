@@ -191,8 +191,8 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
 
 
-    setLastKnownState(simulatedState);
-  }, [rateValue, aOutputSim, vOutputSim, sensitivitySim, currentStep]);
+    setLastKnownState(currentState);
+  }, [rateValue, aOutputSim, vOutputSim, sensitivitySim, pacemakerState, isConnected, currentStep]);
 
   const handleBack = () => {
     if (!showCompletion) {
@@ -315,7 +315,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             <h3 className="mb-2 font-bold">HR</h3>
             <div className="flex justify-center">
               <span className="text-5xl text-gray-600 font">
-                {rateResolved}
+                {pacemakerState?.rate}
               </span>
             </div>
           </div>
