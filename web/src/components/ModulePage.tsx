@@ -237,7 +237,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           {/* EKG Visualization Area */}
           <div className="mt-6">
             <ECGVisualizer
-              rate={rateValue}
+              rate={hrValue}
               aOutput={aOutput}
               vOutput={vOutput}
               sensitivity={sensitivity}
@@ -362,7 +362,7 @@ function getModuleTitle(moduleId: number): string {
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     1: "Initial external pacemaker calibration: intrinsic ECG",
-    2: "Diagnose and correct a failure to sense condition",
+    2: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust the pacemaker",
     3: "Diagnose and correct scenario",
     4: "Diagnose and correct scenario",
     5: "Learn to correctly capture",

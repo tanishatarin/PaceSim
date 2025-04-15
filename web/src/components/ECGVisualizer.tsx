@@ -4,7 +4,7 @@ import {
   Line,
   XAxis,
   YAxis,
-  CartesianGrid,
+  //CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
 import {
