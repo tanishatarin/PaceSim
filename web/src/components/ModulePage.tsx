@@ -153,7 +153,11 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           setCurrentStepIndex((prev) => prev + 1);
         } else {
           console.log("🎉 All steps completed!");
-        }
+          setIsSuccess(true);
+          setShowCompletion(true);
+          endSession(true); 
+          // Optional: ends session as successful        
+          }
       }
     }
 

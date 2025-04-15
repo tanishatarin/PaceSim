@@ -26,6 +26,6 @@ export const module2Steps: ModuleStep[] = [
   {
     objective: "Set sensitivity based on sensing light threshold",
     allowedControls: ["vSensitivity"],
-    targetValues: { vSensitivity: 0.75 },
+    targetValues: { vSensitivity: 0.7 },
   }
 ];
