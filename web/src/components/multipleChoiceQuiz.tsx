@@ -16,18 +16,6 @@ interface MultipleChoiceQuizProps {
 const questionsByModule: Record<number, Question[]> = {
   1: [
     {
-      question: "What is the purpose of the initial pacemaker setting?",
-      choices: [
-        "To increase heart rate",
-        "To monitor ECG",
-        "To reset the device",
-        "To initiate battery test",
-      ],
-      correctIndex: 1,
-    },
-  ],
-  2: [
-    {
       question: "What condition is indicated by this ECG?",
       choices: [
         "Third Degree Block",
@@ -38,14 +26,19 @@ const questionsByModule: Record<number, Question[]> = {
       correctIndex: 2,
     },
     {
-      question: "How would we adjust the pacemaker in response?",
-      choices: ["Recalibrate sensing", "Change mode", "Choice 3", "Choice 4"],
+      question: "You want to evaluate their intrinsic rhythm and adjust pacemaker settings appropriately. What is the correct sequence of steps?",
+      choices: [
+        "Lower the base rate, lower aOutput, then decrease sensitivity until sensing occurs",
+        "Increase the rate, increase aOutput, and maximize sensitivity",
+        "Switch to asynchronous mode, increase output, and monitor for capture",
+        "Disable the pacemaker to assess rhythm, then re-enable it with default settings"
+      ],
       correctIndex: 0,
     },
     {
       question: "What mode would you put your pacemaker in to start this?",
       choices: ["VOO", "AAI", "VVI", "DDD"],
-      correctIndex: 3,
+      correctIndex: 1,
     }
   ],
   3: [
@@ -106,20 +99,23 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
           const showFeedback = showResult && isSelected;
 
           return (
-            <Button
-              key={index}
-              variant={isSelected ? "default" : "outline"}
-              className={`w-full justify-start ${showFeedback
-                  ? isCorrect
-                    ? "bg-green-200 border-green-500"
-                    : "bg-red-200 border-red-500"
-                  : ""
-                }`}
-              onClick={() => handleChoice(index)}
-              disabled={showResult}
-            >
-              {choice}
-            </Button>
+<Button
+  key={index}
+  variant={isSelected ? "default" : "outline"}
+  className={`w-full justify-start whitespace-normal text-left min-h-[4rem] py-2 px-4 ${
+    showFeedback
+      ? isCorrect
+        ? "bg-green-200 border-green-500"
+        : "bg-red-200 border-red-500"
+      : ""
+  }`}
+  onClick={() => handleChoice(index)}
+  disabled={showResult}
+>
+  {choice}
+</Button>
+
+
           );
         })}
       </div>

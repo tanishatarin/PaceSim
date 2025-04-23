@@ -3,10 +3,6 @@ import { ModuleStep } from "@/types/module";
 
 export const module1Steps: ModuleStep[] = [
   {
-    objective: "Watch the sensing light flash",
-    allowedControls: [], // no controls allowed, just observe
-  },
-  {
     objective: "Decrease heart rate to 30 BPM",
     allowedControls: ["rate"],
     targetValues: { rate: 30 },
@@ -16,11 +12,11 @@ export const module1Steps: ModuleStep[] = [
     allowedControls: ["vOutput"],
     targetValues: { v_output: 0.1 },
   },
-  {
-    objective: "Select the ventricular parameter (coming soon)",
-    allowedControls: [], // comment in future when control is added
-    // targetValues: { selectedParam: "ventricular" },
-  },
+  // {
+  //   objective: "Select the ventricular parameter (coming soon)",
+  //   allowedControls: [], // comment in future when control is added
+  //   // targetValues: { selectedParam: "ventricular" },
+  // },
   {
     objective: "Slowly decrease sensitivity to 1.5 mV until the sensing light stops flashing",
     allowedControls: ["vSensitivity"],

@@ -99,6 +99,10 @@ export const generateBradycardiaPoints = ({
 }: ECGParams): Point[] => {
   const points: Point[] = [];
 
+  // Scale beat spacing to ~1500ms (1.5 sec)
+  const complexSpacing = 1500; // spacing between beats
+  const numberOfComplexes = 4;
+
   const baseComplex: Point[] = [
     { x: 5, y: 0 },
     { x: 8, y: 0 },
@@ -126,76 +130,36 @@ export const generateBradycardiaPoints = ({
     { x: 90, y: 0 },
   ];
 
-  // Output scaling
   const scaleOutput = (output: number, max = 5) =>
     Math.min(max, Math.log(output + 1) / Math.log(6));
 
   const aScale = scaleOutput(aOutput, 1);
   const vScale = scaleOutput(vOutput, 5);
 
-  // Trim complex if rate is higher
-  const trimComplex = (complex: Point[], rate: number): Point[] => {
-    if (rate < 60) return complex;
-    const firstActive = complex.findIndex((pt) => pt.y !== 0);
-    const lastActive = [...complex].reverse().findIndex((pt) => pt.y !== 0);
-    const endIndex = complex.length - lastActive;
-    return complex.slice(firstActive, endIndex);
-  };
-
-  const adjustedComplex = trimComplex(baseComplex, rate);
-
-  // Define flatline segment
-  const createFlatlineSegment = (length: number, startX: number): Point[] => {
-    return Array.from({ length }, (_, i) => ({
-      x: startX + i * 5,
-      y: 0,
-    }));
-  };
-
-  // How many flatlines to insert between beats (based on bpm)
-  const getFlatlineCount = (rate: number): number => {
-    if (rate <= 45) return 3;
-    if (rate <= 55) return 2;
-    if (rate < 65) return 1;
-    return 0;
-  };
-
-  const flatlineCount = getFlatlineCount(rate);
-  const numberOfComplexes = 6;
-  let xCursor = 0;
-
   for (let i = 0; i < numberOfComplexes; i++) {
-    // Add waveform
-    for (const pt of adjustedComplex) {
+    const offset = i * complexSpacing;
+
+    for (const pt of baseComplex) {
       let scaledY = pt.y;
 
-      if (pt.x >= 26 && pt.x <= 32) {
+      if (pt.x >= 1 && pt.x <= 3) {
         scaledY *= aScale; // P wave
-      } else if (pt.x >= 35 && pt.x <= 39) {
+      } else if (pt.x >= 5 && pt.x <= 7) {
         scaledY *= vScale; // QRS
-      } else if (pt.x >= 39 && pt.x <= 43) {
+      } else if (pt.x >= 10 && pt.x <= 12) {
         scaledY *= vScale * 0.3; // T wave
       }
 
       points.push({
-        x: xCursor + pt.x,
+        x: offset + pt.x * 5, // controls width of beat
         y: scaledY,
       });
-    }
-
-    // Move cursor to end of complex
-    xCursor = points[points.length - 1].x;
-
-    // Add flatline segments between beats
-    for (let j = 0; j < flatlineCount; j++) {
-      const segment = createFlatlineSegment(10, xCursor + 1);
-      points.push(...segment);
-      xCursor = segment[segment.length - 1].x;
     }
   }
 
   return points;
 };
+
 
 
 export const generateOversensingPoints = ({

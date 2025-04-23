@@ -42,9 +42,9 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isAuthenticated) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  // }
 
   return (
     <div className="min-h-screen bg-[#E5EDF8] p-6">

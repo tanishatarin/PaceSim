@@ -4,7 +4,6 @@ import {
   Line,
   XAxis,
   YAxis,
-  //CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
 import {
@@ -22,7 +21,6 @@ interface ECGVisualizerProps {
   vOutput?: number;
   sensitivity?: number;
   mode?:
-    | "initial"
     | "sensitivity"
     | "oversensing"
     | "undersensing"
@@ -44,7 +42,7 @@ const ECGVisualizer = ({
   aOutput = 5,
   vOutput = 5,
   sensitivity = 1,
-  mode = "initial",
+  mode = "sensitivity",
 }: ECGVisualizerProps) => {
   type Point = { x: number; y: number };
 
@@ -75,14 +73,6 @@ const ECGVisualizer = ({
   // Generate multiple complexes with amplitude adjustments
   const generatePoints = (): Point[] => {
     switch (mode) {
-      case "initial":
-        return generateNormalPacingPoints({
-          rate,
-          aOutput,
-          vOutput,
-          sensitivity,
-        });
-
       case "sensitivity":
         return generateBradycardiaPoints({
           rate,
@@ -194,41 +184,65 @@ const ECGVisualizer = ({
   }, [rate, aOutput, vOutput, sensitivity]);
 
   return (
-    <div className="w-full h-64 overflow-hidden bg-black rounded-lg">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          key={`${rate}-${aOutput}-${vOutput}-${sensitivity}-${mode}`}
-          data={data}
-          margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
-        >
-          <XAxis
-            dataKey="x"
-            tick={false}
-            axisLine={false}
-            stroke="transparent"
-            allowDataOverflow={true}
-            interval={0}
-            padding={{ left: 0, right: 0 }}
-          />
-          <YAxis
-            domain={[-2, 5]}
-            tick={false}
-            axisLine={false}
-            stroke="transparent"
-            allowDataOverflow={true}
-            padding={{ top: 0, bottom: 0 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="y"
-            stroke="#00ff00"
-            strokeWidth={2}
-            dot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
+<div className="w-full h-64 overflow-hidden bg-black relative rounded-lg">
+<div className="absolute inset-0 z-0">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      {/* Small 1mm grid */}
+      <pattern id="smallGrid" width="4" height="4" patternUnits="userSpaceOnUse">
+        <path d="M 4 0 L 0 0 0 4" fill="none" stroke="red" strokeWidth="0.2" opacity="0.3" />
+      </pattern>
+
+      {/* Big 5mm grid */}
+      <pattern id="bigGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+        <rect width="20" height="20" fill="url(#smallGrid)" />
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="red" strokeWidth="0.8" opacity="0.5" />
+      </pattern>
+    </defs>
+
+    {/* Fill background */}
+    <rect width="100%" height="100%" fill="url(#bigGrid)" />
+  </svg>
+</div>
+
+
+  <div className="absolute inset-0 z-10">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart
+        key={`${rate}-${aOutput}-${vOutput}-${sensitivity}-${mode}`}
+        data={data}
+        margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+      >
+        <XAxis
+          dataKey="x"
+          tick={false}
+          axisLine={false}
+          stroke="transparent"
+          allowDataOverflow={true}
+          interval={0}
+          padding={{ left: 0, right: 0 }}
+        />
+        <YAxis
+          domain={[-2, 5]}
+          tick={false}
+          axisLine={false}
+          stroke="transparent"
+          allowDataOverflow={true}
+          padding={{ top: 0, bottom: 0 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="y"
+          stroke="#00ff00"
+          strokeWidth={2}
+          dot={false}
+          isAnimationActive={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
   );
 };
 
