@@ -51,7 +51,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     : rateValue; 
     const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
-  const sensitivity = isConnected ? pacemakerState?.vSensitivity ?? 2 : sensitivitySim;
+  const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
 
   useEffect(() => {
     startSession(moduleInfo.id, moduleInfo.title);
@@ -169,7 +169,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">other stat</h3>
             <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font">{bpValue}</span>
+              <span className="text-5xl text-gray-600 font"></span>
             </div>
           </div>
 
@@ -184,11 +184,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
                 <h3 className="mb-2 font-bold">Simulated Atrial Output</h3>
                 <input type="range" min={0} max={10} step={0.1} value={aOutputSim} onChange={(e) => setAOutputSim(Number(e.target.value))} className="w-full" />
                 <div className="mt-1 text-sm text-center">{aOutputSim.toFixed(1)} V</div>
-              </div>
-              <div className="bg-[#F0F6FE] rounded-xl p-4">
-                <h3 className="mb-2 font-bold">Simulated Ventricular Output</h3>
-                <input type="range" min={0} max={10} step={0.1} value={vOutputSim} onChange={(e) => setVOutputSim(Number(e.target.value))} className="w-full" />
-                <div className="mt-1 text-sm text-center">{vOutputSim.toFixed(1)} V</div>
               </div>
               <div className="bg-[#F0F6FE] rounded-xl p-4">
                 <h3 className="mb-2 font-bold">Simulated Sensitivity</h3>
@@ -228,8 +223,8 @@ function getModuleTitle(moduleId: number): string {
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
     1: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust the pacemaker. \nScenario: You come back into a patient's room the next day and see this pattern on their ECG. Their heart rate has dropped to 40 and attached to the patient, you have A leads.",
-    2: "Diagnose and correct scenario",
-    3: "Diagnose and correct scenario",
+    2: "Diagnose and correct scenario\nfor notes: failure to capture, oversensing module",
+    3: "Diagnose and correct scenario\nfor notes: failure to sense, undersensing module",
     4: "Learn to correctly capture",
     5: "Correct a failure to capture",
   };

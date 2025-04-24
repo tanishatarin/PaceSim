@@ -160,76 +160,75 @@ export const generateBradycardiaPoints = ({
   return points;
 };
 
-
-
-export const generateOversensingPoints = ({
-  rate,
-  aOutput,
-  vOutput,
-}: ECGParams): Point[] => {
+export const generateOversensingPoints = (): Point[] => {
   const points: Point[] = [];
-  const beatLength = 16;
-  const numberOfBeats = 10;
-  const captureThreshold = 12; // needs >12 mA to trigger QRS
 
+  // Define the shape of a normal complex
+  const complex: Point[] = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0.3 },     // P wave
+    { x: 20, y: 0 },
+    { x: 30, y: -0.2 },    // Q
+    { x: 35, y: 1.2 },     // R
+    { x: 40, y: -0.3 },    // S
+    { x: 50, y: 0.2 },     // T wave
+    { x: 60, y: 0 },
+  ];
+
+  const numberOfBeats = 3;
+  const spacing = 300; // space between beats (~1.5 sec)
+  let xCursor = 0;
+
+  // 1. Add a few normal beats
   for (let i = 0; i < numberOfBeats; i++) {
-    const offset = i * beatLength;
-
-    // Atrial pacing spike (optional)
-    if (aOutput > 0) {
-      points.push({ x: offset + 2, y: 4 });
+    for (const pt of complex) {
+      points.push({ x: xCursor + pt.x, y: pt.y });
     }
-
-    // Ventricular pacing spike
-    points.push({ x: offset + 5, y: 4 });
-
-    if (vOutput > captureThreshold) {
-      // Simulate captured QRS
-      points.push({ x: offset + 6, y: -0.2 });
-      points.push({ x: offset + 7, y: 1.3 });
-      points.push({ x: offset + 8, y: -0.3 });
-    }
-
-    for (let j = 0; j < beatLength; j++) {
-      if (![2, 5, 6, 7, 8].includes(j)) {
-        points.push({ x: offset + j, y: 0 });
-      }
-    }
+    xCursor += spacing;
   }
+
+  // 2. Simulate oversensing (flatline — no pacing)
+  const oversensedDuration = 600;
+  for (let i = 0; i < oversensedDuration; i += 5) {
+    points.push({ x: xCursor + i, y: 0 });
+  }
+  xCursor += oversensedDuration;
+
+  // 3. Resume pacing after oversensing
+  for (const pt of complex) {
+    points.push({ x: xCursor + pt.x, y: pt.y });
+  }
+
   return points;
 };
 
-export const generateUndersensingPoints = ({
-  aOutput,
-  vOutput,
-}: ECGParams): Point[] => {
+export const generateUndersensingPoints = (): Point[] => {
   const points: Point[] = [];
-  const totalLength = 160;
 
-  const atrialInterval = 20; // P wave every 20 samples
-  const ventricularInterval = 32; // QRS every 32 samples
+  // Original waveform shape: pacing spike and artifact
+  const shape: Point[] = [
+    { x: 0, y: 20 },   // baseline before spike
+    { x: 3, y: 30 },   // spike peak
+    { x: 6, y: 22 },   // flatline plateau
+    { x: 13, y: 22 },  // end of flat
+    { x: 13, y: 5 },   // vertical drop down
+    { x: 13, y: 22 },  // returns to flat baseline
+  ];
 
-  const pAmp = 0.3 * Math.min(1, aOutput / 5);
-  const qrsAmp = 1.2 * Math.min(1, vOutput / 5);
+  // Scaling
+  const yScale = 1 / 10;   // 20 → 1 mV, 30 → 1.5 mV
+  const spacing = 150;     // ms between beats (adjust as needed)
+  const numberOfBeats = 5;
+  let xCursor = 0;
 
-  for (let i = 0; i < totalLength; i++) {
-    let y = 0;
-
-    // P wave: small, sharp bump
-    if (i % atrialInterval === 0) {
-      y = pAmp;
+  for (let i = 0; i < numberOfBeats; i++) {
+    for (const pt of shape) {
+      points.push({
+        x: xCursor + pt.x,   // use real-time ms values
+        y: pt.y * yScale,
+      });
     }
-
-    // QRS complex: tall and wide, 3-sample shape
-    if (i % ventricularInterval === 0) {
-      points.push({ x: i, y: -0.2 });
-      points.push({ x: i + 1, y: qrsAmp });
-      points.push({ x: i + 2, y: -0.3 });
-      i += 2; // skip ahead to avoid overlap
-      continue;
-    }
-
-    points.push({ x: i, y });
+    xCursor += spacing;
   }
 
   return points;
