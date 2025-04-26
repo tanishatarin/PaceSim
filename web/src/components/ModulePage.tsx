@@ -173,7 +173,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             </div>
           </div>
 
-          {!isConnected && (
+          {/* {!isConnected && (
             <>
               <div className="bg-[#F0F6FE] rounded-xl p-4">
                 <h3 className="mb-2 font-bold">Simulated Heart Rate</h3>
@@ -191,7 +191,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
                 <div className="mt-1 text-sm text-center">{sensitivitySim.toFixed(1)} mV</div>
               </div>
             </>
-          )}
+          )} */}
 
           <div className="flex mt-6 space-x-3">
             <Button variant="outline" className="w-1/2 text-red-500 border-red-500 hover:bg-red-50" onClick={() => handleComplete(false)}>Fail Module</Button>

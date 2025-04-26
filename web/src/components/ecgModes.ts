@@ -99,8 +99,12 @@ export const generateBradycardiaPoints = ({
 }: ECGParams): Point[] => {
   const points: Point[] = [];
 
-  // Scale beat spacing to ~1500ms (1.5 sec)
-  const complexSpacing = 1500; // spacing between beats
+  const baseSpacing = 1500; // normal bradycardia beat spacing
+  const fastSpacing = 800;  // faster beat spacing after parameter change
+
+  // Choose spacing based on vOutput
+  const complexSpacing = vOutput > 2 ? fastSpacing : baseSpacing;
+
   const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
@@ -151,7 +155,7 @@ export const generateBradycardiaPoints = ({
       }
 
       points.push({
-        x: offset + pt.x * 5, // controls width of beat
+        x: offset + pt.x * 5,
         y: scaledY,
       });
     }
@@ -205,31 +209,6 @@ export const generateOversensingPoints = (): Point[] => {
 export const generateUndersensingPoints = (): Point[] => {
   const points: Point[] = [];
 
-  // Original waveform shape: pacing spike and artifact
-  const shape: Point[] = [
-    { x: 0, y: 20 },   // baseline before spike
-    { x: 3, y: 30 },   // spike peak
-    { x: 6, y: 22 },   // flatline plateau
-    { x: 13, y: 22 },  // end of flat
-    { x: 13, y: 5 },   // vertical drop down
-    { x: 13, y: 22 },  // returns to flat baseline
-  ];
-
-  // Scaling
-  const yScale = 1 / 10;   // 20 → 1 mV, 30 → 1.5 mV
-  const spacing = 150;     // ms between beats (adjust as needed)
-  const numberOfBeats = 5;
-  let xCursor = 0;
-
-  for (let i = 0; i < numberOfBeats; i++) {
-    for (const pt of shape) {
-      points.push({
-        x: xCursor + pt.x,   // use real-time ms values
-        y: pt.y * yScale,
-      });
-    }
-    xCursor += spacing;
-  }
 
   return points;
 };
