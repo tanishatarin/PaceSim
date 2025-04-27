@@ -41,6 +41,38 @@ const questionsByModule: Record<number, Question[]> = {
       correctIndex: 1,
     }
   ],
+  2: [
+    {
+      question: "What does a failure to sense typically indicate?",
+      choices: [
+        "Battery failure",
+        "Loose leads",
+        "High sensing threshold",
+        "Low pacing output",
+      ],
+      correctIndex: 1,
+    },
+    {
+      question: "Adjust some dials on the pacemaker and see what happens",
+      choices: [
+        "ECG corrects itself",
+        "Sensitivity fixes issue",
+        "Pacing output needed to be increased",
+        "Nothing happens",
+      ],
+      correctIndex: 3,
+    },    
+    {
+      question: "How should we proceed to solve the problem?",
+      choices: [
+        "ECG corrects itself",
+        "Sensitivity fixes issue",
+        "Pacing output needed to be increased",
+        "Nothing happens",
+      ],
+      correctIndex: 3,
+    },
+  ],
   3: [
     {
       question: "What does a failure to sense typically indicate?",
