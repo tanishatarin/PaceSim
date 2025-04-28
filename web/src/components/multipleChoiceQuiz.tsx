@@ -115,9 +115,7 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
     const isLastQuestion = currentIndex === questions.length - 1;
     if (isLastQuestion) {
       const finalCorrectCount = correctCount + (isCorrect ? 1 : 0);
-      const passed = finalCorrectCount === questions.length;
-      console.log("Quiz complete! Passed:", passed);
-  
+      const passed = finalCorrectCount === questions.length;  
       onPassQuiz?.(passed); // <-- pass 'passed' value
 
     }

@@ -13,21 +13,37 @@ export const module1Steps: ModuleStep[] = [
     targetValues: { v_output: 0.1 },
   },
   {
-    objective: "Select the ventricular parameter (coming soon)",
+    objective: "Select the correct pacing mode given that you have both A and V leads",
     allowedControls: ["mode"], // comment in future when control is added
-    targetValues: { mode: 3 },
+    targetValues: { mode: 6 },
   },
   {
-    objective: "Slowly decrease sensitivity to 1.5 mV until the sensing light stops flashing",
+    objective: "Set aSensitivity to 0.4 and vSensitivity to 0.8 to start checking sensitivity",
+    allowedControls: ["aSensitivity", "vSensitivity"],
+    targetValues: { aSensitivity: 0.4 , vSensitivity: 0.8},
+  },
+  {
+    objective: "Slowly increase aSensitivity mV to 1.6 mV until the sensing light stops flashing. When the sensing light stops flashing, you have hit the sensing threshold",
     allowedControls: ["aSensitivity"],
     targetValues: { aSensitivity: 1.6 },
   },
   {
-    objective: "Further decrease sensitivity to 0.75 mV",
+    objective: "Set aSensitivity mV to half of the sensitivity threshold",
     allowedControls: ["aSensitivity"],
     targetValues: { aSensitivity: 0.8 },
   },
-  //seecond part
+  //for v
+  {
+    objective: "Slowly increase vSensitivity mV to 1.6 mV until the sensing light stops flashing. When the sensing light stops flashing, you have hit the sensing threshold",
+    allowedControls: ["vSensitivity"],
+    targetValues: { vSensitivity: 1.6 },
+  },
+  {
+    objective: "Set vSensitivity mV to half of the sensitivity threshold",
+    allowedControls: ["vSensitivity"],
+    targetValues: { vSensitivity: 0.8 },
+  },
+  //second part
   {
     objective: "Set rate 10 bpm above patient intrinsic HR",
     allowedControls: ["rate"],
@@ -44,8 +60,18 @@ export const module1Steps: ModuleStep[] = [
     targetValues: { a_output: 8 },
   },
   {
+    objective: "Slowly increase output vOutput to match aOutput",
+    allowedControls: ["vOutput"],
+    targetValues: { v_output: 4 },
+  },
+  {
+    objective: "vOutput threshold is 4, set vOutput accordingly",
+    allowedControls: ["vOutput"],
+    targetValues: { v_output: 8 },
+  },
+  {
     objective: "Restore rate as ordered to physician's request of 80 BPM",
-    allowedControls: ["aOutput"],
-    targetValues: { a_output: 8 },
+    allowedControls: ["rate"],
+    targetValues: { rate: 80 },
   },
 ];
