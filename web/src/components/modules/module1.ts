@@ -60,14 +60,14 @@ export const module1Steps: ModuleStep[] = [
   {
     objective: "Slowly increase aOutput until consistent capture",
     allowedControls: ["aOutput"],
-    targetValues: { a_output: 4 },
+    targetValues: { a_output: 5 },
     flashingSensor: "left",
 
   },
   {
-    objective: "aOutput threshold is 4, set aOutput accordingly",
+    objective: "aOutput threshold is 5, set aOutput accordingly",
     allowedControls: ["aOutput"],
-    targetValues: { a_output: 8 },
+    targetValues: { a_output: 10 },
     flashingSensor: "left",
 
   },

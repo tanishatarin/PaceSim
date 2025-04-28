@@ -102,7 +102,7 @@ export const generateBradycardiaPoints = ({
   const baseSpacing = 400; // slower beat spacing
   const fastSpacing = 200; // faster beat spacing
 
-  const complexSpacing = vOutput >= 15 ? fastSpacing : baseSpacing;
+  const complexSpacing = aOutput >= 10 ? fastSpacing : baseSpacing;
   const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
