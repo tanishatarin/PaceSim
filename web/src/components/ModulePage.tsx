@@ -97,21 +97,21 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   useEffect(() => {
     if (!currentStep || !pacemakerState || !isConnected) return;
 
-    const nonControlKeys: (keyof PacemakerState)[] = [
-      "lastUpdate", "batteryLevel", "isLocked", "isPaused", "pauseTimeLeft", "mode"
-    ];
+    // const nonControlKeys: (keyof PacemakerState)[] = [
+    //   "lastUpdate", "batteryLevel", "isLocked", "isPaused", "pauseTimeLeft", "mode"
+    // ];
 
-    const disallowedKeys = Object.keys(pacemakerState)
-      .filter((key) =>
-        !currentStep.allowedControls.includes(key) &&
-        !nonControlKeys.includes(key as keyof PacemakerState)
-      ) as (keyof PacemakerState)[];
+    // const disallowedKeys = Object.keys(pacemakerState)
+    //   .filter((key) =>
+    //     !currentStep.allowedControls.includes(key) &&
+    //     !nonControlKeys.includes(key as keyof PacemakerState)
+    //   ) as (keyof PacemakerState)[];
 
-    for (const key of disallowedKeys) {
-      console.log("❗ Disallowed setting changed:", key);
-      // You can set warning state here if you want
-      break;
-    }
+    // for (const key of disallowedKeys) {
+    //   console.log("❗ Disallowed setting changed:", key);
+    //   // You can set warning state here if you want
+    //   break;
+    // }
 
     if (currentStep.targetValues) {
       const matchedAllTargets = Object.entries(currentStep.targetValues).every(
