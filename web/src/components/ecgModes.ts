@@ -102,9 +102,7 @@ export const generateBradycardiaPoints = ({
   const baseSpacing = 1500; // normal bradycardia beat spacing
   const fastSpacing = 800;  // faster beat spacing after parameter change
 
-  // Choose spacing based on vOutput
-  const complexSpacing = vOutput > 2 ? fastSpacing : baseSpacing;
-
+  const complexSpacing = vOutput >= 10 ? fastSpacing : baseSpacing;
   const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
@@ -140,24 +138,41 @@ export const generateBradycardiaPoints = ({
   const aScale = scaleOutput(aOutput, 1);
   const vScale = scaleOutput(vOutput, 5);
 
-  for (let i = 0; i < numberOfComplexes; i++) {
-    const offset = i * complexSpacing;
+  let xCursor = 0;
 
+  for (let i = 0; i < numberOfComplexes; i++) {
+    // Add the base complex
     for (const pt of baseComplex) {
       let scaledY = pt.y;
 
       if (pt.x >= 1 && pt.x <= 3) {
         scaledY *= aScale; // P wave
       } else if (pt.x >= 5 && pt.x <= 7) {
-        scaledY *= vScale; // QRS
+        scaledY *= vScale; // QRS complex
       } else if (pt.x >= 10 && pt.x <= 12) {
         scaledY *= vScale * 0.3; // T wave
       }
 
       points.push({
-        x: offset + pt.x * 5,
+        x: xCursor + pt.x * 5,
         y: scaledY,
       });
+    }
+
+    // After each complex, insert a flatline segment to stretch to the next complex
+    const lastX = points[points.length - 1].x;
+    const targetNextX = (i + 1) * complexSpacing;
+
+    if (targetNextX > lastX) {
+      // Fill in with flatline points between end of complex and start of next
+      const gapLength = targetNextX - lastX;
+      const flatlinePoints = createFlatlineSegment(gapLength, lastX);
+
+      points.push(...flatlinePoints);
+      xCursor = points[points.length - 1].x; // move xCursor to end of flatline
+    } else {
+      // No flatline needed if complexSpacing is already small
+      xCursor = lastX;
     }
   }
 
@@ -275,6 +290,18 @@ export const generateFailureToCapturePoints = ({
 
   return points;
 };
+
+const createFlatlineSegment = (length: number, startX: number): Point[] => {
+  const points: Point[] = [];
+  const step = 5; // adjust how dense the flatline is
+
+  for (let x = 0; x <= length; x += step) {
+    points.push({ x: startX + x, y: 0 });
+  }
+
+  return points;
+};
+
 {
   /**
 export const generateSecondDegreeBlockPoints = ({

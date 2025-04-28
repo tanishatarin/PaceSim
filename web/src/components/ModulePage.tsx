@@ -17,7 +17,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData();
 
   const [sensorStates, setSensorStates] = useState({ left: true, right: true });
-  const [rateValue, setRateValue] = useState(40);
+  const [rate, setRateValue] = useState(40);
   const [aOutputSim, setAOutputSim] = useState(5);
   const [vOutputSim, setVOutputSim] = useState(5);
   const [sensitivitySim, setSensitivitySim] = useState(2);
@@ -44,9 +44,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
 
   const isModule1 = moduleInfo?.id === "1"; // adjust as needed
-  const rate = isModule1 && isConnected
+  const rateValue = isModule1 && isConnected
   ? pacemakerState?.rate ?? 60
-  : rateValue;
+  : rate;
     const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
   const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
