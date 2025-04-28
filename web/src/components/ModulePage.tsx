@@ -44,11 +44,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
 
   const isModule1 = moduleInfo?.id === "1"; // adjust as needed
-  const rate = isModule1
-  ? 40
-  : isConnected
-    ? pacemakerState?.rate ?? 60
-    : rateValue; 
+  const rate = isModule1 && isConnected
+  ? pacemakerState?.rate ?? 60
+  : rateValue;
     const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
   const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;

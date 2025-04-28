@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo} from "react";
 import {
   LineChart,
   Line,
@@ -153,13 +153,14 @@ const ECGVisualizer = ({
     }
   };
 
+  const points = useMemo(() => generatePoints(), [rate, aOutput, vOutput, sensitivity, mode]);
+
   useEffect(() => {
-    const points = generatePoints();
     setData(points.slice(0, 100));
     const speedMultiplier = speedMultipliers[mode] || 1; // fallback = normal speed
-
+  
     const updateInterval = (60000 / rate / baseComplex.length) * speedMultiplier;
-
+  
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => {
         const newIndex = (prevIndex + 1) % points.length;
@@ -170,9 +171,9 @@ const ECGVisualizer = ({
         return newIndex;
       });
     }, updateInterval);
-
+  
     return () => clearInterval(interval);
-  }, [rate, aOutput, vOutput, sensitivity]);
+  }, [points, rate, mode]);
 
   return (
     <div className="w-full h-64 overflow-hidden bg-black relative rounded-lg">
