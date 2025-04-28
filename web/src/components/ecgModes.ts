@@ -99,14 +99,13 @@ export const generateBradycardiaPoints = ({
 }: ECGParams): Point[] => {
   const points: Point[] = [];
 
-  const baseSpacing = 1500; // normal bradycardia beat spacing
-  const fastSpacing = 800;  // faster beat spacing after parameter change
+  const baseSpacing = 600; // slower beat spacing
+  const fastSpacing = 200; // faster beat spacing
 
   const complexSpacing = vOutput >= 10 ? fastSpacing : baseSpacing;
   const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
-    { x: 22, y: 0 },
     { x: 23, y: 0 },
     { x: 26, y: 0.088 },
     { x: 28, y: 0.176 },
@@ -119,9 +118,6 @@ export const generateBradycardiaPoints = ({
     { x: 37, y: 0 },
     { x: 39, y: 0.353 },
     { x: 41, y: 0 },
-    { x: 43, y: 0 },
-    { x: 45, y: 0 },
-    { x: 59, y: 0 },
   ];
 
   const scaleOutput = (output: number, max = 5) =>
