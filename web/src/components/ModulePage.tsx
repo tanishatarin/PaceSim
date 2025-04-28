@@ -31,9 +31,17 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const [steps, setSteps] = useState<ModuleStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const currentStep = steps[currentStepIndex] ?? null;
-  
 
-  
+  useEffect(() => {
+    if (steps.length > 0) {
+      console.log("✅ Steps updated:");
+      console.log(steps);
+      console.log("✅ Current Step Index:", currentStepIndex);
+      console.log("✅ Current Step Objective:", steps[currentStepIndex]?.objective);
+    }
+  }, [steps, currentStepIndex]);
+
+
 
   const { startSession, endSession } = useSession();
 
@@ -56,9 +64,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   const isModule1 = moduleInfo?.id === "1"; // adjust as needed
   const rateValue = isModule1 && isConnected
-  ? pacemakerState?.rate ?? 60
-  : rate;
-    const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
+    ? pacemakerState?.rate ?? 60
+    : rate;
+  const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
   const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
 
@@ -88,23 +96,23 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
 
   useEffect(() => {
     if (!currentStep || !pacemakerState || !isConnected) return;
-  
+
     const nonControlKeys: (keyof PacemakerState)[] = [
       "lastUpdate", "batteryLevel", "isLocked", "isPaused", "pauseTimeLeft", "mode"
     ];
-  
+
     const disallowedKeys = Object.keys(pacemakerState)
-      .filter((key) => 
-        !currentStep.allowedControls.includes(key) && 
+      .filter((key) =>
+        !currentStep.allowedControls.includes(key) &&
         !nonControlKeys.includes(key as keyof PacemakerState)
       ) as (keyof PacemakerState)[];
-  
+
     for (const key of disallowedKeys) {
       console.log("❗ Disallowed setting changed:", key);
       // You can set warning state here if you want
       break;
     }
-  
+
     if (currentStep.targetValues) {
       const matchedAllTargets = Object.entries(currentStep.targetValues).every(
         ([key, expected]) => {
@@ -114,7 +122,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             : expected === actual;
         }
       );
-  
+
       if (matchedAllTargets) {
         if (currentStepIndex < steps.length - 1) {
           console.log("✅ Step completed, moving to next step!");
@@ -126,9 +134,9 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
         }
       }
     }
-  
+
   }, [pacemakerState, isConnected, currentStep]);
-  
+
 
   const bpValue = "120/80";
 
@@ -171,7 +179,11 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
         <div className="col-span-2 space-y-4">
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="mb-2 font-bold">Objective:</h3>
-            <p className="whitespace-pre-line">{moduleInfo.objective}</p>
+            <p className="whitespace-pre-line">
+              {steps.length > 0 && currentStep
+                ? currentStep.objective
+                : moduleInfo.objective}
+            </p>
           </div>
 
           <div className={`p-2 rounded-xl text-sm ${isConnected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
@@ -187,19 +199,14 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             )}
           </div>
           <MultipleChoiceQuiz
-  moduleId={moduleId}
-  onComplete={(passed) => {
-    console.log("Quiz complete. Passed?", passed);
-    if (passed) {
-      if (moduleId === 1) {
-        setSteps(module1Steps);
-        setCurrentStepIndex(0);
-      }
-      // Add more modules here later if needed
-    }
-    handleComplete(passed);
-  }}
-/>
+            moduleId={moduleId}
+            onPassQuiz={(passed) => {
+              console.log("Quiz complete. Passed?", passed);
+              setSteps(module1Steps);
+              setCurrentStepIndex(0);
+            }}
+          />
+
         </div>
 
         <div className="space-y-6">

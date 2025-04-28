@@ -10,7 +10,7 @@ interface Question {
 
 interface MultipleChoiceQuizProps {
   moduleId: number;
-  onComplete?: (passed: boolean) => void;
+  onPassQuiz?: (passed: boolean) => void;
 }
 
 const questionsByModule: Record<number, Question[]> = {
@@ -90,7 +90,7 @@ const questionsByModule: Record<number, Question[]> = {
 
 const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
   moduleId,
-  onComplete,
+  onPassQuiz,
 }) => {
   const questions = questionsByModule[moduleId] ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,23 +99,37 @@ const MultipleChoiceQuiz: React.FC<MultipleChoiceQuizProps> = ({
   const [correctCount, setCorrectCount] = useState(0);
 
   const currentQuestion = questions[currentIndex];
+
   const handleChoice = (index: number) => {
     setSelectedIndex(index);
     setShowResult(true);
-    if (index === currentQuestion.correctIndex) {
+  
+    const isCorrect = index === currentQuestion.correctIndex;
+    if (isCorrect) {
+      console.log("Correct choice selected!");
       setCorrectCount((prev) => prev + 1);
-    }
-  };
-
-  const handleNext = () => {
-    setSelectedIndex(null);
-    setShowResult(false);
-    if (currentIndex + 1 < questions.length) {
-      setCurrentIndex((prev) => prev + 1);
     } else {
-      onComplete?.(correctCount === questions.length);
+      console.log("Incorrect choice selected.");
+    }
+  
+    const isLastQuestion = currentIndex === questions.length - 1;
+    if (isLastQuestion) {
+      const finalCorrectCount = correctCount + (isCorrect ? 1 : 0);
+      const passed = finalCorrectCount === questions.length;
+      console.log("Quiz complete! Passed:", passed);
+  
+      onPassQuiz?.(passed); // <-- pass 'passed' value
+
     }
   };
+  
+
+const handleNext = () => {
+  setSelectedIndex(null);
+  setShowResult(false);
+  setCurrentIndex((prev) => prev + 1);
+};
+
 
   if (!currentQuestion) {
     return <p>No questions for this module.</p>;
