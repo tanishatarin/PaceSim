@@ -12,11 +12,11 @@ export const module1Steps: ModuleStep[] = [
     allowedControls: ["vOutput"],
     targetValues: { v_output: 0.1 },
   },
-  {
-    objective: "Select the correct pacing mode given that you have both A and V leads",
-    allowedControls: ["mode"], // comment in future when control is added
-    targetValues: { mode: 6 },
-  },
+  // {
+  //   objective: "Select the correct pacing mode given that you have both A and V leads",
+  //   allowedControls: ["mode"], // comment in future when control is added
+  //   targetValues: { mode: 6 },
+  // },
   {
     objective: "Set aSensitivity to 0.4 and vSensitivity to 0.8 to start checking sensitivity",
     allowedControls: ["aSensitivity", "vSensitivity"],
