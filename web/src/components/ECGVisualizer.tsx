@@ -14,6 +14,8 @@ import {
   generateCaptureModulePoints,
   generateFailureToCapturePoints,
 } from "@/components/ecgModes";
+import { ModuleStep } from "@/types/module";
+
 
 interface ECGVisualizerProps {
   rate?: number;
@@ -26,6 +28,8 @@ interface ECGVisualizerProps {
   | "undersensing"
   | "capture_module"
   | "failure_to_capture";
+  currentStep?: ModuleStep | null;
+  currentStepIndex?: number;
 }
 
 const speedMultipliers: Record<string, number> = {
@@ -43,6 +47,8 @@ const ECGVisualizer = ({
   vOutput = 5,
   sensitivity = 1,
   mode = "sensitivity",
+  currentStep,
+  currentStepIndex,
 }: ECGVisualizerProps) => {
   type Point = { x: number; y: number };
 
@@ -153,8 +159,11 @@ const ECGVisualizer = ({
     }
   };
 
-  const points = useMemo(() => generatePoints(), [rate, aOutput, vOutput, sensitivity, mode]);
-
+  const points = useMemo(() => 
+    generateBradycardiaPoints({ rate, aOutput, vOutput, sensitivity, currentStep, currentStepIndex }), 
+    [rate, aOutput, vOutput, sensitivity, mode, currentStep, currentStepIndex]
+  );
+  
   useEffect(() => {
     setData(points.slice(0, 100));
     const speedMultiplier = speedMultipliers[mode] || 1; // fallback = normal speed

@@ -1,3 +1,5 @@
+import { ModuleStep } from "@/types/module";
+
 export type Point = { x: number; y: number };
 
 type ECGParams = {
@@ -96,14 +98,26 @@ export const generateBradycardiaPoints = ({
   aOutput,
   vOutput,
   sensitivity,
-}: ECGParams): Point[] => {
+  currentStep,
+  currentStepIndex,
+}: ECGParams & { currentStep?: ModuleStep | null; currentStepIndex?: number }): Point[] => {
   const points: Point[] = [];
 
   const baseSpacing = 400; // slower beat spacing
   const fastSpacing = 200; // faster beat spacing
-
-  const complexSpacing = aOutput >= 10 ? fastSpacing : baseSpacing;
   const numberOfComplexes = 4;
+  let complexSpacing = baseSpacing;
+
+// Step 8-specific pacing change
+if (currentStep && currentStepIndex === 7) { 
+  if (currentStep.targetValues?.a_output !== undefined) {
+    const targetAOutput = currentStep.targetValues.a_output;
+    if (aOutput >= targetAOutput) {
+      complexSpacing = fastSpacing;
+    }
+  }
+}
+
 
   const baseComplex: Point[] = [
     { x: 8, y: 0 },
