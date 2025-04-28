@@ -98,22 +98,14 @@ export const generateBradycardiaPoints = ({
   aOutput,
   vOutput,
   sensitivity,
-  currentStep,
-  currentStepIndex,
 }: ECGParams & { currentStep?: ModuleStep | null; currentStepIndex?: number }): Point[] => {
   const points: Point[] = [];
 
   const baseSpacing = 400; // slower beat spacing
   const fastSpacing = 200; // faster beat spacing
-  const numberOfComplexes = 4;
-  let complexSpacing = baseSpacing;
 
-  // After Step 3 (i.e., starting from Step 4)
-  if (currentStepIndex && currentStepIndex >= 3) {
-    if (aOutput >= 4) { // or whatever threshold you want
-      complexSpacing = fastSpacing;
-    }
-  }
+  const complexSpacing = aOutput >= 4 ? fastSpacing : baseSpacing;
+  const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
     { x: 8, y: 0 },
