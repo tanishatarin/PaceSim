@@ -106,10 +106,6 @@ export const generateBradycardiaPoints = ({
   const numberOfComplexes = 4;
 
   const baseComplex: Point[] = [
-    { x: 5, y: 0 },
-    { x: 8, y: 0 },
-    { x: 15, y: 0 },
-    { x: 18, y: 0 },
     { x: 22, y: 0 },
     { x: 23, y: 0 },
     { x: 26, y: 0.088 },
@@ -126,10 +122,6 @@ export const generateBradycardiaPoints = ({
     { x: 43, y: 0 },
     { x: 45, y: 0 },
     { x: 59, y: 0 },
-    { x: 60, y: 0 },
-    { x: 65, y: 0 },
-    { x: 67, y: 0 },
-    { x: 90, y: 0 },
   ];
 
   const scaleOutput = (output: number, max = 5) =>
