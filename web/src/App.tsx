@@ -50,8 +50,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#E5EDF8] p-6">
-      <TestModal />;
-      {/* <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout> */}
+      <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
     </div>
   );
 };
