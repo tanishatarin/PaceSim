@@ -14,4 +14,9 @@ export interface ModuleStep {
   objective: string;
   allowedControls: string[];
   targetValues?: Partial<PacemakerState>;
+  sensorStates?: {
+    left: boolean;
+    right: boolean;
+  };
+  flashingSensor?: "left" | "right" | null;
 }

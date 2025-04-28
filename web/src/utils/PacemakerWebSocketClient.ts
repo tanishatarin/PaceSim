@@ -67,7 +67,6 @@ export interface PacemakerState {
           this.currentState = data as PacemakerState;
 
           //console.log('Received pacemaker state:', this.currentState);
-          console.log('mode number ', this.currentState.mode);
 
           this.notifyStateChange(this.currentState);
         } catch (e) {

@@ -31,6 +31,8 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const [steps, setSteps] = useState<ModuleStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const currentStep = steps[currentStepIndex] ?? null;
+  const [flashingSensor, setFlashingSensor] = useState<"left" | "right" | null>(null);
+
 
   useEffect(() => {
     if (steps.length > 0) {
@@ -97,22 +99,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   useEffect(() => {
     if (!currentStep || !pacemakerState || !isConnected) return;
 
-    // const nonControlKeys: (keyof PacemakerState)[] = [
-    //   "lastUpdate", "batteryLevel", "isLocked", "isPaused", "pauseTimeLeft", "mode"
-    // ];
-
-    // const disallowedKeys = Object.keys(pacemakerState)
-    //   .filter((key) =>
-    //     !currentStep.allowedControls.includes(key) &&
-    //     !nonControlKeys.includes(key as keyof PacemakerState)
-    //   ) as (keyof PacemakerState)[];
-
-    // for (const key of disallowedKeys) {
-    //   console.log("❗ Disallowed setting changed:", key);
-    //   // You can set warning state here if you want
-    //   break;
-    // }
-
     if (currentStep.targetValues) {
       const matchedAllTargets = Object.entries(currentStep.targetValues).every(
         ([key, expected]) => {
@@ -136,6 +122,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     }
 
   }, [pacemakerState, isConnected, currentStep]);
+
+  useEffect(() => {
+    if (currentStep?.flashingSensor !== undefined) {
+      setFlashingSensor(currentStep.flashingSensor ?? null);
+      console.log("✅ Flashing sensor updated to:", currentStep.flashingSensor);
+    }
+  }, [currentStep]);
 
 
   const bpValue = "120/80";
@@ -213,9 +206,22 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="mb-4 font-bold">Sensing Lights:</h3>
             <div className="flex justify-around">
-              <div className={`w-16 h-16 rounded-full ${sensorStates.left ? "bg-green-400" : "bg-gray-300"}`} />
-              <div className={`w-16 h-16 rounded-full ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"}`} />
+              <div className="flex flex-col items-center">
+                <div className={`w-16 h-16 rounded-full transition-colors duration-300
+      ${sensorStates.left ? "bg-green-400" : "bg-gray-300"}
+      ${flashingSensor === "left" ? "animate-pulse-slow" : ""}
+    `} />
+                <span className="mt-2 text-sm text-gray-600">Left</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className={`w-16 h-16 rounded-full transition-colors duration-300
+      ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"}
+      ${flashingSensor === "right" ? "animate-pulse-slow" : ""}
+    `} />
+                <span className="mt-2 text-sm text-gray-600">Right</span>
+              </div>
             </div>
+
           </div>
 
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
