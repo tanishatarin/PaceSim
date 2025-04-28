@@ -6,6 +6,8 @@ import { ProfilePage } from "./components/ProfilePage";
 import { ModulePage } from "./components/ModulePage";
 import AuthPage from "./components/AuthPage";
 import { useAuth } from "./contexts/AuthContext";
+import TestModal from "./components/testmodal";
+
 
 type Page = "landing" | "settings" | "profile" | "module";
 
@@ -48,7 +50,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#E5EDF8] p-6">
-      <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout>
+      <TestModal />;
+      {/* <Layout onNavigate={setCurrentPage}>{renderCurrentPage()}</Layout> */}
     </div>
   );
 };
