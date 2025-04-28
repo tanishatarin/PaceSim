@@ -17,7 +17,7 @@ export const module1Steps: ModuleStep[] = [
   {
     objective: "Select the correct pacing mode",
     allowedControls: ["mode"], // comment in future when control is added
-    targetValues: { mode: 6 },
+    targetValues: { mode: 4 },
     flashingSensor: "right",
   },
   {

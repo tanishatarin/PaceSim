@@ -190,8 +190,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               vOutput={vOutput}
               sensitivity={sensitivity}
               mode={mode}
-              currentStep={currentStep}
-              currentStepIndex={currentStepIndex}
             />
             {!isConnected && (
               <div className="py-1 mt-2 text-xs text-center text-yellow-700 rounded-lg bg-yellow-50">

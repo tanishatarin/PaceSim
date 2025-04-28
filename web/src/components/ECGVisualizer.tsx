@@ -28,8 +28,6 @@ interface ECGVisualizerProps {
   | "undersensing"
   | "capture_module"
   | "failure_to_capture";
-  currentStep?: ModuleStep | null;
-  currentStepIndex?: number;
 }
 
 const speedMultipliers: Record<string, number> = {
@@ -47,8 +45,6 @@ const ECGVisualizer = ({
   vOutput = 5,
   sensitivity = 1,
   mode = "sensitivity",
-  currentStep,
-  currentStepIndex,
 }: ECGVisualizerProps) => {
   type Point = { x: number; y: number };
 
@@ -85,8 +81,6 @@ const ECGVisualizer = ({
           aOutput,
           vOutput,
           sensitivity,
-          currentStep,
-          currentStepIndex,
         });
 
       case "oversensing":
@@ -163,7 +157,7 @@ const ECGVisualizer = ({
   };
   const points = useMemo(() => 
     generatePoints(), 
-    [rate, aOutput, vOutput, sensitivity, mode, currentStep, currentStepIndex]
+    [rate, aOutput, vOutput, sensitivity, mode]
   );
   useEffect(() => {
     setData(points.slice(0, 100));

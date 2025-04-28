@@ -38,7 +38,7 @@ const questionsByModule: Record<number, Question[]> = {
     {
       question: "What mode would you put your pacemaker in to start this? You have Atrial leads connected.",
       choices: ["VOO", "AAI", "VVI", "DDD"],
-      correctIndex: 3,
+      correctIndex: 1,
     }
   ],
   2: [

@@ -108,23 +108,12 @@ export const generateBradycardiaPoints = ({
   const numberOfComplexes = 4;
   let complexSpacing = baseSpacing;
 
-// Step 8-specific pacing change
-if (currentStep && currentStepIndex === 7) { 
-  if (currentStep.targetValues?.a_output !== undefined) { // <-- Atrial output target
-    const targetAOutput = currentStep.targetValues.a_output; // <-- Use a_output
-    if (aOutput >= targetAOutput) { // <-- Compare actual atrial output
-      console.log(
-        `✅ Atrial output ${aOutput}V >= target ${targetAOutput}V — switching to FAST pacing!`
-      );
+  // After Step 3 (i.e., starting from Step 4)
+  if (currentStepIndex && currentStepIndex >= 3) {
+    if (aOutput >= 4) { // or whatever threshold you want
       complexSpacing = fastSpacing;
-      console.log('changed pacing');
-    } else {
-      console.log(
-        `🕐 Atrial output ${aOutput}V not yet at target ${targetAOutput}V — staying SLOW.`
-      );
     }
   }
-}
 
   const baseComplex: Point[] = [
     { x: 8, y: 0 },
