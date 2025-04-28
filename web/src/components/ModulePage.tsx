@@ -7,6 +7,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "@/contexts/SessionContext";
 import MultipleChoiceQuiz from "./multipleChoiceQuiz";
 import { usePacemakerData } from "@/hooks/usePacemakerData";
+import { module1Steps } from "./modules/module1";
+import { ModuleStep } from "@/types/module";
+import { PacemakerState } from "@/utils/PacemakerWebSocketClient";
+
 
 interface ModulePageProps {
   moduleId: number;
@@ -23,6 +27,13 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
   const [sensitivitySim, setSensitivitySim] = useState(2);
   const [showCompletion, setShowCompletion] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const [steps, setSteps] = useState<ModuleStep[]>([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const currentStep = steps[currentStepIndex] ?? null;
+  
+
+  
 
   const { startSession, endSession } = useSession();
 
@@ -75,6 +86,50 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     if (!showCompletion) endSession(false);
     onBack();
   };
+
+  useEffect(() => {
+    if (!currentStep || !pacemakerState || !isConnected) return;
+  
+    const nonControlKeys: (keyof PacemakerState)[] = [
+      "lastUpdate", "batteryLevel", "isLocked", "isPaused", "pauseTimeLeft", "mode"
+    ];
+  
+    const disallowedKeys = Object.keys(pacemakerState)
+      .filter((key) => 
+        !currentStep.allowedControls.includes(key) && 
+        !nonControlKeys.includes(key as keyof PacemakerState)
+      ) as (keyof PacemakerState)[];
+  
+    for (const key of disallowedKeys) {
+      console.log("❗ Disallowed setting changed:", key);
+      // You can set warning state here if you want
+      break;
+    }
+  
+    if (currentStep.targetValues) {
+      const matchedAllTargets = Object.entries(currentStep.targetValues).every(
+        ([key, expected]) => {
+          const actual = pacemakerState[key as keyof PacemakerState];
+          return typeof expected === "number" && typeof actual === "number"
+            ? Math.abs(expected - actual) < 0.01
+            : expected === actual;
+        }
+      );
+  
+      if (matchedAllTargets) {
+        if (currentStepIndex < steps.length - 1) {
+          console.log("✅ Step completed, moving to next step!");
+          setCurrentStepIndex((prev) => prev + 1);
+        } else {
+          console.log("🎉 All steps completed!");
+          setShowCompletion(true);
+          setIsSuccess(true);
+        }
+      }
+    }
+  
+  }, [pacemakerState, isConnected, currentStep]);
+  
 
   const bpValue = "120/80";
 
@@ -132,7 +187,20 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               </div>
             )}
           </div>
-          <MultipleChoiceQuiz moduleId={moduleId} onComplete={(passed) => { console.log("Quiz complete. Passed?", passed); if (passed) handleComplete(true); }} />
+          <MultipleChoiceQuiz
+  moduleId={moduleId}
+  onComplete={(passed) => {
+    console.log("Quiz complete. Passed?", passed);
+    if (passed) {
+      if (moduleId === 1) {
+        setSteps(module1Steps);
+        setCurrentStepIndex(0);
+      }
+      // Add more modules here later if needed
+    }
+    handleComplete(passed);
+  }}
+/>
         </div>
 
         <div className="space-y-6">
