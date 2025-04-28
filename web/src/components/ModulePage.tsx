@@ -50,6 +50,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
   const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
+  console.log(vOutput);
 
   useEffect(() => {
     startSession(moduleInfo.id, moduleInfo.title);
@@ -164,12 +165,12 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
             </div>
           </div>
 
-          <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
+          {/* <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">other stat</h3>
             <div className="flex justify-center">
               <span className="text-5xl text-gray-600 font"></span>
             </div>
-          </div>
+          </div> */}
 
           {/* {!isConnected && (
             <>
