@@ -61,7 +61,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
     const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
   const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
   const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
-  console.log(vOutput);
 
   useEffect(() => {
     startSession(moduleInfo.id, moduleInfo.title);
@@ -232,33 +231,6 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId, onBack }) => {
               <span className="text-5xl text-gray-600 font">{rateValue}</span>
             </div>
           </div>
-
-          {/* <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
-            <h3 className="mb-2 font-bold">other stat</h3>
-            <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font"></span>
-            </div>
-          </div> */}
-
-          {/* {!isConnected && (
-            <>
-              <div className="bg-[#F0F6FE] rounded-xl p-4">
-                <h3 className="mb-2 font-bold">Simulated Heart Rate</h3>
-                <input type="range" min={30} max={120} step={1} value={rateValue} onChange={(e) => setRateValue(Number(e.target.value))} className="w-full" />
-                <div className="mt-1 text-sm text-center">{rateValue} BPM</div>
-              </div>
-              <div className="bg-[#F0F6FE] rounded-xl p-4">
-                <h3 className="mb-2 font-bold">Simulated Atrial Output</h3>
-                <input type="range" min={0} max={10} step={0.1} value={aOutputSim} onChange={(e) => setAOutputSim(Number(e.target.value))} className="w-full" />
-                <div className="mt-1 text-sm text-center">{aOutputSim.toFixed(1)} V</div>
-              </div>
-              <div className="bg-[#F0F6FE] rounded-xl p-4">
-                <h3 className="mb-2 font-bold">Simulated Sensitivity</h3>
-                <input type="range" min={0} max={10} step={0.1} value={sensitivitySim} onChange={(e) => setSensitivitySim(Number(e.target.value))} className="w-full" />
-                <div className="mt-1 text-sm text-center">{sensitivitySim.toFixed(1)} mV</div>
-              </div>
-            </>
-          )} */}
 
           <div className="flex mt-6 space-x-3">
             <Button variant="outline" className="w-1/2 text-red-500 border-red-500 hover:bg-red-50" onClick={() => handleComplete(false)}>Fail Module</Button>
