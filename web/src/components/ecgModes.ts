@@ -117,6 +117,7 @@ if (currentStep && currentStepIndex === 7) {
         `✅ Atrial output ${aOutput}V >= target ${targetAOutput}V — switching to FAST pacing!`
       );
       complexSpacing = fastSpacing;
+      console.log('changed pacing');
     } else {
       console.log(
         `🕐 Atrial output ${aOutput}V not yet at target ${targetAOutput}V — staying SLOW.`

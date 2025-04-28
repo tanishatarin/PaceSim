@@ -85,6 +85,8 @@ const ECGVisualizer = ({
           aOutput,
           vOutput,
           sensitivity,
+          currentStep,
+          currentStepIndex,
         });
 
       case "oversensing":
@@ -99,6 +101,7 @@ const ECGVisualizer = ({
           aOutput,
           vOutput,
           sensitivity,
+          
         });
 
       case "failure_to_capture":
@@ -158,12 +161,10 @@ const ECGVisualizer = ({
         }
     }
   };
-
   const points = useMemo(() => 
-    generateBradycardiaPoints({ rate, aOutput, vOutput, sensitivity, currentStep, currentStepIndex }), 
+    generatePoints(), 
     [rate, aOutput, vOutput, sensitivity, mode, currentStep, currentStepIndex]
   );
-  
   useEffect(() => {
     setData(points.slice(0, 100));
     const speedMultiplier = speedMultipliers[mode] || 1; // fallback = normal speed
