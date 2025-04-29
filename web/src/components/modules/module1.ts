@@ -21,7 +21,7 @@ export const module1Steps: ModuleStep[] = [
     flashingSensor: "right",
   },
   {
-    objective: "Select the correct mode then adjust aSensitivity to 0.4 to start checking sensitivity",
+    objective: "Now, adjust aSensitivity to 0.4 to start checking sensitivity",
     allowedControls: ["aSensitivity"],
     targetValues: { aSensitivity: 0.4},
     flashingSensor: "right",
