@@ -306,18 +306,21 @@
 // export default ModulePage;
 
 
-// src/components/ModulePage.tsx - Updated with simulation controls
+
+
+
+
+// src/components/ModulePage.tsx - Enhanced with debug logging and proper module loading
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ECGVisualizer from "@/components/ECGVisualizer";
-import { SimulationControls } from "@/components/SimulationControls";
 import { useSession } from "@/contexts/SessionContext";
 import { usePacemakerData } from "@/hooks/usePacemakerData";
-import { $router } from '@/stores/router'
+import { goHome } from '@/stores/router';
 import MultipleChoiceQuiz from "./multipleChoiceQuiz";
-import { module1Steps } from "./modules/module1";
+import { getModuleSteps } from "./modules/allModuleSteps";
 import { ModuleStep } from "@/types/module";
 import { PacemakerState } from "@/utils/PacemakerWebSocketClient";
 
@@ -326,23 +329,25 @@ interface ModulePageProps {
 }
 
 export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
+  console.log(`🏥 Loading ModulePage for module ${moduleId}`);
+  
   const { state: pacemakerState, isConnected, sendControlUpdate } = usePacemakerData();
   
   // Simulation state (used when hardware not connected)
-  const [simRate, setSimRate] = useState(40);
-  const [simAOutput, setSimAOutput] = useState(5);
-  const [simVOutput, setSimVOutput] = useState(5);
-  const [simASensitivity, setSimASensitivity] = useState(2);
-  const [simVSensitivity, setSimVSensitivity] = useState(2);
-  const [simMode, setSimMode] = useState(4); // AAI mode
-
+  const [rate, setRateValue] = useState(40);
+  const [aOutputSim, setAOutputSim] = useState(5);
+  const [vOutputSim, setVOutputSim] = useState(5);
+  const [sensitivitySim, setSensitivitySim] = useState(2);
+  
   const [sensorStates, setSensorStates] = useState({ left: true, right: true });
   const [showCompletion, setShowCompletion] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
   const [steps, setSteps] = useState<ModuleStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const currentStep = steps[currentStepIndex] ?? null;
   const [flashingSensor, setFlashingSensor] = useState<"left" | "right" | null>(null);
+  const [moduleLoaded, setModuleLoaded] = useState(false);
 
   const { startSession, endSession } = useSession();
 
@@ -350,31 +355,48 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
     id: moduleId.toString(),
     title: getModuleTitle(moduleId),
     objective: getModuleObjective(moduleId),
-    step: "Set the Sensing Threshold",
   };
+
+  console.log(`📋 Module info:`, moduleInfo);
 
   type ECGMode = "sensitivity" | "oversensing" | "undersensing" | "capture_module" | "failure_to_capture";
   const moduleModes: Record<number, ECGMode> = {
     1: "sensitivity",
-    2: "oversensing",
+    2: "oversensing", 
     3: "undersensing",
     4: "capture_module",
     5: "failure_to_capture",
   };
-  const [mode, setMode] = useState<ECGMode>(moduleModes[moduleId]);
+  const [mode] = useState<ECGMode>(moduleModes[moduleId] || "sensitivity");
+
+  console.log(`🎭 ECG Mode for module ${moduleId}:`, mode);
 
   // Use hardware data if connected, otherwise use simulation
-  const currentRate = isConnected ? (pacemakerState?.rate ?? 60) : simRate;
-  const currentAOutput = isConnected ? (pacemakerState?.a_output ?? 5) : simAOutput;
-  const currentVOutput = isConnected ? (pacemakerState?.v_output ?? 5) : simVOutput;
-  const currentASensitivity = isConnected ? (pacemakerState?.aSensitivity ?? 2) : simASensitivity;
-  const currentVSensitivity = isConnected ? (pacemakerState?.vSensitivity ?? 2) : simVSensitivity;
-  const currentMode = isConnected ? (pacemakerState?.mode ?? 4) : simMode;
+  const isModule1 = moduleInfo?.id === "1";
+  const rateValue = isModule1 && isConnected
+    ? pacemakerState?.rate ?? 60
+    : rate;
+  const aOutput = isConnected ? pacemakerState?.a_output ?? 5 : aOutputSim;
+  const vOutput = isConnected ? pacemakerState?.v_output ?? 5 : vOutputSim;
+  const sensitivity = isConnected ? pacemakerState?.aSensitivity ?? 2 : sensitivitySim;
 
+  // Load module on mount
   useEffect(() => {
+    console.log(`🚀 ModulePage mounted for module ${moduleId}`);
     startSession(moduleInfo.id, moduleInfo.title);
-    return () => endSession(false);
-  }, []);
+    
+    // Load module steps
+    const moduleSteps = getModuleSteps(moduleId);
+    console.log(`📚 Loaded ${moduleSteps.length} steps for module ${moduleId}:`, moduleSteps);
+    setSteps(moduleSteps);
+    setCurrentStepIndex(0);
+    setModuleLoaded(true);
+    
+    return () => {
+      console.log(`🛑 ModulePage unmounting for module ${moduleId}`);
+      endSession(false);
+    };
+  }, [moduleId, moduleInfo.id, moduleInfo.title, startSession, endSession]);
 
   useEffect(() => {
     if (pacemakerState) {
@@ -383,49 +405,28 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
       setSensorStates({ left: leftOn, right: rightOn });
     } else {
       // Update sensor states based on simulation values
-      const leftOn = simAOutput > 0 && simASensitivity > 0;
-      const rightOn = simVOutput > 0 && simVSensitivity > 0;
+      const leftOn = aOutputSim > 0 && sensitivitySim > 0;
+      const rightOn = vOutputSim > 0 && sensitivitySim > 0;
       setSensorStates({ left: leftOn, right: rightOn });
     }
-  }, [pacemakerState, simAOutput, simVOutput, simASensitivity, simVSensitivity]);
+  }, [pacemakerState, aOutputSim, vOutputSim, sensitivitySim]);
 
-  const handleComplete = (success: boolean) => {
-    setIsSuccess(success);
-    setShowCompletion(true);
-    endSession(success);
-  };
-
-  const handleBack = () => {
-    if (!showCompletion) endSession(false);
-    $router.open('home');
-  };
-
-  // Handle control updates - send to hardware if connected, otherwise update simulation
-  const handleControlUpdate = (updates: Partial<PacemakerState>) => {
-    if (isConnected) {
-      sendControlUpdate(updates);
-    } else {
-      // Update simulation state
-      if (updates.rate !== undefined) setSimRate(updates.rate);
-      if (updates.a_output !== undefined) setSimAOutput(updates.a_output);
-      if (updates.v_output !== undefined) setSimVOutput(updates.v_output);
-      if (updates.aSensitivity !== undefined) setSimASensitivity(updates.aSensitivity);
-      if (updates.vSensitivity !== undefined) setSimVSensitivity(updates.vSensitivity);
-      if (updates.mode !== undefined) setSimMode(updates.mode);
-    }
-  };
-
-  // Step progression logic
+  // Hardware step progression logic (only for Module 1 with hardware)
   useEffect(() => {
-    if (!currentStep || !isConnected) return;
+    if (!currentStep || !pacemakerState || !isConnected || !isModule1) return;
 
+    console.log(`🔍 Checking step completion for step ${currentStepIndex + 1}`);
+    
     if (currentStep.targetValues) {
       const matchedAllTargets = Object.entries(currentStep.targetValues).every(
         ([key, expected]) => {
-          const actual = pacemakerState?.[key as keyof PacemakerState];
-          return typeof expected === "number" && typeof actual === "number"
+          const actual = pacemakerState[key as keyof PacemakerState];
+          const matches = typeof expected === "number" && typeof actual === "number"
             ? Math.abs(expected - actual) < 0.01
             : expected === actual;
+          
+          console.log(`🎯 Target check: ${key} = ${actual} (expected: ${expected}) - ${matches ? '✅' : '❌'}`);
+          return matches;
         }
       );
 
@@ -440,15 +441,43 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
         }
       }
     }
-  }, [pacemakerState, isConnected, currentStep, currentStepIndex, steps.length]);
+  }, [pacemakerState, isConnected, currentStep, isModule1, currentStepIndex, steps.length]);
 
   useEffect(() => {
     if (currentStep?.flashingSensor !== undefined) {
       setFlashingSensor(currentStep.flashingSensor ?? null);
+      console.log("💡 Flashing sensor updated to:", currentStep.flashingSensor);
     }
   }, [currentStep]);
 
+  const handleComplete = (success: boolean) => {
+    console.log(`🏁 Module completion: ${success ? 'SUCCESS' : 'FAILED'}`);
+    setIsSuccess(success);
+    setShowCompletion(true);
+    endSession(success);
+  };
+
+  const handleBack = () => {
+    console.log("🔙 Returning to home");
+    if (!showCompletion) endSession(false);
+    goHome();
+  };
+
   const bpValue = "120/80";
+
+  // Show loading state if module hasn't loaded yet
+  if (!moduleLoaded) {
+    return (
+      <Card className="w-full p-8 bg-white shadow-lg rounded-3xl">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+            <p className="text-gray-600">Loading Module {moduleId}...</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
   
   return (
     <>
@@ -503,7 +532,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
             <h3 className="mb-2 font-bold">Objective:</h3>
             <p className="whitespace-pre-line">
               {steps.length > 0 && currentStep
-                ? currentStep.objective
+                ? `Step ${currentStepIndex + 1}/${steps.length}: ${currentStep.objective}`
                 : moduleInfo.objective}
             </p>
           </div>
@@ -514,10 +543,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
 
           <div className="mt-6">
             <ECGVisualizer
-              rate={currentRate}
-              aOutput={currentAOutput}
-              vOutput={currentVOutput}
-              sensitivity={currentASensitivity}
+              rate={rateValue}
+              aOutput={aOutput}
+              vOutput={vOutput}
+              sensitivity={sensitivity}
               mode={mode}
             />
             {!isConnected && (
@@ -530,46 +559,31 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
           <MultipleChoiceQuiz
             moduleId={moduleId}
             onPassQuiz={(passed) => {
-              console.log("Quiz complete. Passed?", passed);
-              setSteps(module1Steps);
-              setCurrentStepIndex(0);
+              console.log(`📝 Quiz complete for module ${moduleId}. Passed: ${passed}`);
+              if (passed && steps.length === 0) {
+                // If no steps loaded yet, try to load them after quiz completion
+                const moduleSteps = getModuleSteps(moduleId);
+                setSteps(moduleSteps);
+                setCurrentStepIndex(0);
+              }
             }}
           />
         </div>
 
         <div className="space-y-6">
-          {/* Simulation Controls */}
-          <SimulationControls
-            rate={currentRate}
-            aOutput={currentAOutput}
-            vOutput={currentVOutput}
-            aSensitivity={currentASensitivity}
-            vSensitivity={currentVSensitivity}
-            mode={currentMode}
-            onRateChange={(value) => handleControlUpdate({ rate: value })}
-            onAOutputChange={(value) => handleControlUpdate({ a_output: value })}
-            onVOutputChange={(value) => handleControlUpdate({ v_output: value })}
-            onASensitivityChange={(value) => handleControlUpdate({ aSensitivity: value })}
-            onVSensitivityChange={(value) => handleControlUpdate({ vSensitivity: value })}
-            onModeChange={(value) => handleControlUpdate({ mode: value })}
-            isConnected={isConnected}
-          />
-
           <div className="bg-[#F0F6FE] rounded-xl p-4">
             <h3 className="mb-4 font-bold">Sensing Lights:</h3>
             <div className="flex justify-around">
               <div className="flex flex-col items-center">
-                <div className={`w-16 h-16 rounded-full transition-colors duration-300
-      ${sensorStates.left ? "bg-green-400" : "bg-gray-300"}
-      ${flashingSensor === "left" ? "animate-pulse" : ""}
-    `} />
+                <div className={`w-16 h-16 rounded-full transition-colors duration-300 ${
+                  sensorStates.left ? "bg-green-400" : "bg-gray-300"
+                } ${flashingSensor === "left" ? "animate-pulse" : ""}`} />
                 <span className="mt-2 text-sm text-gray-600">Left</span>
               </div>
               <div className="flex flex-col items-center">
-                <div className={`w-16 h-16 rounded-full transition-colors duration-300
-      ${sensorStates.right ? "bg-blue-400" : "bg-gray-300"}
-      ${flashingSensor === "right" ? "animate-pulse" : ""}
-    `} />
+                <div className={`w-16 h-16 rounded-full transition-colors duration-300 ${
+                  sensorStates.right ? "bg-blue-400" : "bg-gray-300"
+                } ${flashingSensor === "right" ? "animate-pulse" : ""}`} />
                 <span className="mt-2 text-sm text-gray-600">Right</span>
               </div>
             </div>
@@ -578,7 +592,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">Patient HR</h3>
             <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font">{currentRate}</span>
+              <span className="text-5xl text-gray-600 font">{rate}</span>
             </div>
           </div>
 
@@ -592,9 +606,25 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
           <div className="bg-[#F0F6FE] rounded-xl p-4 h-32">
             <h3 className="mb-2 font-bold">Pacemaker HR</h3>
             <div className="flex justify-center">
-              <span className="text-5xl text-gray-600 font">{currentRate}</span>
+              <span className="text-5xl text-gray-600 font">{rateValue}</span>
             </div>
           </div>
+
+          {/* Progress indicator for modules with steps */}
+          {steps.length > 0 && (
+            <div className="bg-[#F0F6FE] rounded-xl p-4">
+              <h3 className="mb-2 font-bold">Progress:</h3>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${((currentStepIndex + 1) / steps.length) * 100}%` }}
+                />
+              </div>
+              <div className="text-sm text-gray-600 text-center">
+                Step {currentStepIndex + 1} of {steps.length}
+              </div>
+            </div>
+          )}
 
           <div className="flex mt-6 space-x-3">
             <Button variant="outline" className="w-1/2 text-red-500 border-red-500 hover:bg-red-50" onClick={() => handleComplete(false)}>Fail Module</Button>
@@ -615,10 +645,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({ moduleId }) => {
 
 function getModuleTitle(moduleId: number): string {
   const titles: Record<number, string> = {
-    1: "Scenario 1",
-    2: "Scenario 2", 
-    3: "Scenario 3",
-    4: "Capture Module",
+    1: "Failure to Sense (Bradycardia)",
+    2: "Oversensing (EMI)", 
+    3: "Undersensing",
+    4: "Capture Calibration",
     5: "Failure to Capture",
   };
   return titles[moduleId] || "Unknown Module";
@@ -626,11 +656,13 @@ function getModuleTitle(moduleId: number): string {
 
 function getModuleObjective(moduleId: number): string {
   const objectives: Record<number, string> = {
-    1: "Diagnose and correct a failure to sense condition. Answer the multiple choice at the bottom and then adjust the pacemaker. \nScenario: You come back into a patient's room the next day and see this pattern on their ECG. Their heart rate has dropped to 40 and attached to the patient, you have A leads.",
-    2: "Diagnose and correct scenario\nfor notes: failure to capture, oversensing module",
-    3: "Diagnose and correct scenario\nfor notes: failure to sense, undersensing module", 
-    4: "Learn to correctly capture",
-    5: "Correct a failure to capture",
+    1: "Diagnose and correct a failure to sense condition. Answer the multiple choice questions below and then follow the step-by-step procedure.\n\nScenario: You come back into a patient's room the next day and see this pattern on their ECG. Their heart rate has dropped to 40 and attached to the patient, you have A leads.",
+    2: "Diagnose and correct oversensing caused by electromagnetic interference.\n\nScenario: The pacemaker is inappropriately inhibited by external signals. Identify the problem and adjust sensitivity settings.",
+    3: "Diagnose and correct undersensing where the pacemaker fails to detect intrinsic beats.\n\nScenario: You notice pacing spikes occurring on top of the patient's intrinsic rhythm.", 
+    4: "Learn to properly calibrate capture thresholds for both atrial and ventricular pacing.\n\nScenario: Establish minimum effective pacing outputs with appropriate safety margins.",
+    5: "Correct a failure to capture scenario where pacing spikes don't result in cardiac depolarization.\n\nScenario: You see pacing spikes on the ECG but no corresponding QRS complexes.",
   };
   return objectives[moduleId] || "Complete the module tasks";
 }
+
+export default ModulePage;

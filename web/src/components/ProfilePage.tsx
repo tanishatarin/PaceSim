@@ -110,16 +110,17 @@
 
 
 
-// src/components/ProfilePage.tsx - Updated to use correct router
+
+// src/components/ProfilePage.tsx - Fixed ProfilePage with router navigation
 import React from "react";
 import { ArrowLeft, User, Clock, Award, History } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useStore } from '@nanostores/react'
-import { $userData } from '@/stores/auth'
-import { goHome } from '@/stores/router'
+import { useStore } from '@nanostores/react';
+import { $userData } from '@/stores/auth';
+import { goHome } from '@/stores/router';
 
 export const ProfilePage: React.FC = () => {
-  const userData = useStore($userData)
+  const userData = useStore($userData);
 
   if (!userData) {
     return (

@@ -98,36 +98,49 @@
 
 
 
-// src/components/Layout.tsx - Fixed to handle router correctly
-import React, { useState } from "react";
+
+// src/components/Layout.tsx - Fixed Layout with router navigation
+import React, { useState, useEffect } from "react";
 import { Settings, User, LogOut, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useStore } from '@nanostores/react'
-import { $router, goHome, goToSettings, goToProfile } from '@/stores/router'
-import { $userData, logoutUser } from '@/stores/auth'
+import { useStore } from '@nanostores/react';
+import { $router, goHome, goToSettings, goToProfile } from '@/stores/router';
+import { $userData, logoutUser } from '@/stores/auth';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const userData = useStore($userData)
-  const page = useStore($router)
+  const userData = useStore($userData);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showUserMenu) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showUserMenu]);
+
   const handleLogout = () => {
-    logoutUser()
+    logoutUser();
     setShowUserMenu(false);
   };
 
   const navigateProfile = () => {
-    goToProfile()
-    setShowUserMenu(false)
-  }
+    goToProfile();
+    setShowUserMenu(false);
+  };
 
-  // Get current route info
-  const currentRoute = page?.route || 'home'
-  const params: { id?: string } = page?.params || {}
+  const handleUserMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowUserMenu(!showUserMenu);
+  };
   
   return (
     <div className="min-h-screen bg-[#E5EDF8] p-6">
@@ -141,34 +154,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Home className="w-6 h-6 mr-2" />
             <span className="text-xl font-bold">PaceSim</span>
           </button>
-
-          {/* Breadcrumb navigation */}
-          <div className="flex items-center text-sm text-gray-600">
-            <button 
-              onClick={goHome}
-              className="hover:text-blue-600"
-            >
-              Home
-            </button>
-            {currentRoute === 'module' && (
-              <>
-                <span className="mx-2">/</span>
-                <span>Module {params.id}</span>
-              </>
-            )}
-            {currentRoute === 'settings' && (
-              <>
-                <span className="mx-2">/</span>
-                <span>Settings</span>
-              </>
-            )}
-            {currentRoute === 'profile' && (
-              <>
-                <span className="mx-2">/</span>
-                <span>Profile</span>
-              </>
-            )}
-          </div>
           
           {/* Right side - user menu */}
           <div className="flex items-center gap-4">
@@ -186,13 +171,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Button
                 variant="ghost"
                 className="flex items-center gap-2"
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={handleUserMenuClick}
               >
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full">
                   <User className="w-4 h-4 text-blue-700" />
                 </div>
                 <span className="hidden text-sm font-medium md:inline-block">
-                  {userData?.name?.split(' ')[0] ?? ""}
+                  {userData?.name?.split(' ')[0] ?? "User"}
                 </span>
               </Button>
               
@@ -225,3 +210,5 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 };
+
+export default Layout;

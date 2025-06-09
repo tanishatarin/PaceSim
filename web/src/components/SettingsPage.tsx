@@ -156,17 +156,18 @@
 
 
 
-// src/components/SettingsPage.tsx - Updated to use correct router
+
+// src/components/SettingsPage.tsx - Fixed SettingsPage with router navigation
 import React from "react";
 import { ArrowLeft, HelpCircle, Shield, LogOut } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { goHome } from '@/stores/router'
-import { logoutUser } from '@/stores/auth'
+import { goHome } from '@/stores/router';
+import { logoutUser } from '@/stores/auth';
 
 export const SettingsPage: React.FC = () => {
   const handleLogout = () => {
-    logoutUser()
-  }
+    logoutUser();
+  };
 
   const appVersion = "1.0.0"; // You can import this from package.json
 

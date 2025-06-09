@@ -166,7 +166,7 @@
 import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { loginUser } from "@/stores/auth"; // Adjust the import path as needed
+import { loginUser } from '@/stores/auth';
 
 interface LoginFormProps {
   onLoginSuccess: (userData: any) => void;
@@ -218,17 +218,34 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
         throw new Error(data.message || "Authentication failed");
       }
 
+      // Ensure we have proper user data structure
+      const userData = {
+        id: data.id || data.username || username,
+        name: data.name || data.username || username,
+        email: data.email || `${username}@example.com`,
+        role: data.role || "Student",
+        institution: data.institution || "Johns Hopkins University",
+        username: data.username || username,
+        stats: data.stats || {
+          completedModules: [],
+          inProgressModules: []
+        }
+      };
+
+      console.log('Login successful, user data:', userData); // Debug log
+      
       // Handle successful login/signup
       setIsLoading(false);
       
       // Use auth store login function
-      loginUser(data);
+      loginUser(userData);
       
       // Also call the parent component callback
-      onLoginSuccess(data);
+      onLoginSuccess(userData);
     } catch (err: any) {
       setIsLoading(false);
       setError(err.message || "Something went wrong");
+      console.error('Login error:', err);
     }
   };
 

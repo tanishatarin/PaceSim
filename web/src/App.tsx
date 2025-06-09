@@ -61,11 +61,12 @@
 
 
 
-// src/App.tsx - Fixed to handle router correctly
+
+// src/App.tsx - Debug version with console logging
 import React, { useEffect } from "react";
-import { useStore } from '@nanostores/react'
-import { $router, goHome } from './stores/router'
-import { $isAuthenticated, $authLoading, initAuth } from './stores/auth'
+import { useStore } from '@nanostores/react';
+import { $router } from './stores/router';
+import { $isAuthenticated, $authLoading, initAuth } from './stores/auth';
 import { Layout } from "./components/Layout";
 import { LandingPage } from "./components/LandingPage";
 import { SettingsPage } from "./components/SettingsPage";
@@ -75,16 +76,21 @@ import AuthPage from "./components/AuthPage";
 import { SessionProvider } from "./contexts/SessionContext";
 
 const App: React.FC = () => {
-  const page = useStore($router)
-  const isAuthenticated = useStore($isAuthenticated)
-  const authLoading = useStore($authLoading)
+  const routerState = useStore($router);
+  const isAuthenticated = useStore($isAuthenticated);
+  const authLoading = useStore($authLoading);
+
+  console.log('🔄 App render - Router state:', routerState);
+  console.log('🔐 App render - Auth state:', { isAuthenticated, authLoading });
 
   useEffect(() => {
-    initAuth()
-  }, [])
+    console.log('🚀 App mounted, initializing auth');
+    initAuth();
+  }, []);
 
   // Show loading while checking auth
   if (authLoading) {
+    console.log('⏳ Showing auth loading state');
     return (
       <div className="min-h-screen bg-[#E5EDF8] flex items-center justify-center">
         <div className="text-center">
@@ -92,44 +98,47 @@ const App: React.FC = () => {
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Handle auth pages
   const handleAuthSuccess = () => {
-    goHome()
-  }
+    console.log('✅ Auth successful');
+  };
 
   // Get current route info
-  const currentRoute = page?.route || 'home'
-  const params: { id?: string } = page?.params || {}
+  const currentRoute = routerState.route;
+  const moduleId = routerState.moduleId || 1;
+
+  console.log(`📍 Current route: ${currentRoute}, moduleId: ${moduleId}`);
 
   // Redirect to login if not authenticated
   if (!isAuthenticated && currentRoute !== 'login') {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />
-  }
-
-  // Redirect to home if authenticated but on login page
-  if (isAuthenticated && currentRoute === 'login') {
-    goHome()
-    return null
+    console.log('🔑 Not authenticated, showing auth page');
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
   }
 
   const renderPage = () => {
+    console.log(`🎭 Rendering page for route: ${currentRoute}`);
+    
     switch (currentRoute) {
       case 'home':
-        return <LandingPage />
+        console.log('🏠 Rendering LandingPage');
+        return <LandingPage />;
       case 'module':
-        const moduleId = parseInt(params.id || '1')
-        return <ModulePage moduleId={moduleId} />
+        console.log(`📚 Rendering ModulePage for module ${moduleId}`);
+        return <ModulePage moduleId={moduleId} />;
       case 'settings':
-        return <SettingsPage />
+        console.log('⚙️ Rendering SettingsPage');
+        return <SettingsPage />;
       case 'profile':
-        return <ProfilePage />
+        console.log('👤 Rendering ProfilePage');
+        return <ProfilePage />;
       default:
-        return <LandingPage />
+        console.log(`❓ Unknown route: ${currentRoute}, defaulting to LandingPage`);
+        return <LandingPage />;
     }
-  }
+  };
 
   return (
     <SessionProvider>
